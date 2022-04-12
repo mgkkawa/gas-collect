@@ -1,0 +1,14 @@
+{
+  "timeZone": "Asia/Tokyo",
+  "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "LINEWORKS",
+        "version": "55",
+        "libraryId": "1aLcCr3CWqfenPMyM0_FWIDUgRcTxsit9bO6BTx61NCXrCtkY2zbHBlod"
+      }
+    ]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8"
+}

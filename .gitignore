@@ -1,0 +1,6 @@
+**/
+!src/
+.clasp.json
+.claspignore
+!appsscript.json
+!tsconfig.json
