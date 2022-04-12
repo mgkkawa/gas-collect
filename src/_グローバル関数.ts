@@ -21,7 +21,7 @@ const triggerset = (t: string, time: Date) => {
   ScriptApp.newTrigger(t).timeBased().at(time).create();
 };
 
-const mainData = (s) => {
+const mainData_ = (s) => {
   switch (s) {
     case 'vc': return SpreadsheetApp.openById('12px9xnwlW5W4lkcYkT3ifQY_WbroAz4Hc-MFp6H0-GM'); //[移行先]
     case 'as': return SpreadsheetApp.openById('1m93CFX1uG67bO6c5xbSGoV5Bm0xNbfO0QAkE7nQqO5c'); //【ソフトバンク様】共有用アサインシート
@@ -38,7 +38,7 @@ const mainData = (s) => {
   }
 }
 
-const testData = (s) => {
+const testData_ = (s) => {
   switch (s) {
     case 'vc': return SpreadsheetApp.openById('1vj_jYh177A1LxSZ2xxLBNKnXxV-gGGfanrJpjqR-A8g');//[開発用]新会場連絡シート
     case 'sh': return SpreadsheetApp.openById('1WWgrfYK06KbQXaLgHQGSTHf4DMmZOFixElsTlqnbHHs');//[開発用]SBスマホ教室シフト ver.2
@@ -47,7 +47,7 @@ const testData = (s) => {
   }
 }
 
-const setOptions = () => {
+const setOptions_ = () => {
   return {
     "apiId": "jp2ZfyeuwcreZ",
     "consumerKey": "WCuVQsBn1LN1IlfD5_nx",
@@ -57,7 +57,7 @@ const setOptions = () => {
   };
 }
 
-const accountId = (name) => {
+const accountId_ = (name) => {
   switch (name) {
     case '大山夏美': return 'mg.06210@mgcorporation';
     case '山崎達也': return 'mg.24637@mgcorporation';
@@ -69,11 +69,11 @@ const accountId = (name) => {
   }
 }
 
-const callbackURL = () => {
+const callbackURL_ = () => {
   return "https://script.google.com/macros/s/AKfycbxkGkqNEqqA9QYvySiS4TUEpjd7poF7DLUYDL5G6ghZLgtOkmc/exec";
 }
 
-const addressCheck = () => {
+const addressCheck_ = () => {
   var sheet = SpreadsheetApp.openById('1m93CFX1uG67bO6c5xbSGoV5Bm0xNbfO0QAkE7nQqO5c').getSheetByName('202204');
   //var sheet = SpreadsheetApp.openById('1aF-KKlYVWMNBO95Gc4B2d70cie7fPApz-G7m0PR2bVQ').getSheetByName('シート2');
   var dat = sheet.getDataRange().getDisplayValues();
@@ -121,7 +121,7 @@ const NumToA1 = (num) => {
   return s;
 }
 
-const datObject = (array) => {
+const datObject_ = (array) => {
   //受け取った配列を連想配列化して返す。
   var keys = array[0];
   array.shift();
@@ -133,12 +133,12 @@ const datObject = (array) => {
   return obj;
 }
 
-const objectCut = (obj, keys) => {
+const objectCut_ = (obj, keys) => {
   //受け取った連想配列を受け取ったキーで取り出して二次元配列として返す。
   return obj.map(array => keys.map(key => array[key]));
 }
 
-const convertDate = (values, str) => {
+const convertDate_ = (values, str) => {
   if (!str) { str = 'yyyy/MM/dd' };
   //date型をstringに変換
   for (var i = 0; i < values.length; i++) {
@@ -156,7 +156,7 @@ const convertDate = (values, str) => {
   }
 }
 
-const convertObj = (values) => {
+const convertObj_ = (values) => {
   var reg = /^....\/..\/..$/;
   for (var i = 0; i < values.length; i++) {
     var newValues = values[i].map(
@@ -173,7 +173,7 @@ const convertObj = (values) => {
   return values;
 }
 
-const month = (value) => {
+const month_ = (value) => {
   switch (true) {
     case value >= 5: return value.match(/(?<=\/)[0-9][1-9](?=\/)/);
     default: return value.slice(0, 2);
@@ -188,13 +188,13 @@ const valueDate = (value, str = 'MM/dd') => {
   }
 };
 
-const staffData = (keys = ['スタッフ名', '銀行名', '支店名', '口座番号']) => {
-  const data = staffObject();
+const staffData_ = (keys = ['スタッフ名', '銀行名', '支店名', '口座番号']) => {
+  const data = staffObject_();
   const array = data.map(function (staff) { return keys.map(function (key) { return staff[key]; }); });
   return array;
 };
 
-const staffObject = () => {
+const staffObject_ = () => {
   const database = SpreadsheetApp.openById('14KJJ0cDL_iwIyYOFpHoutgBa1IhFz-C0bGLrru-V6Vw').getSheetByName('データベース').getDataRange().getDisplayValues();
   const keys = database[0];
   database.shift();
@@ -208,8 +208,8 @@ const staffObject = () => {
   return array;
 };
 
-const staffEmailAddress = (name) => {
-  const staffs = staffData(['name', 'e-mail']);
+const staffEmailAddress_ = (name) => {
+  const staffs = staffData_(['name', 'e-mail']);
   for (let i in staffs) {
     if (staffs[i].includes(name)) {
       var eMail = staffs[i][1];
@@ -249,8 +249,9 @@ const zenkana2Hankana = (str) => {
     .replace(/゛/g, 'ﾞ')
     .replace(/゜/g, 'ﾟ');
 }
-const slimstaffData = (staffs, keys) => {
-  const database = mainData('sh')
+
+const slimstaffData_ = (staffs, keys) => {
+  const database = mainData_('sh')
     .getSheetByName('データベース').getDataRange().getDisplayValues();
   const label = database[0];
   const names = database.map(values => values[0]).flat();
@@ -261,13 +262,13 @@ const slimstaffData = (staffs, keys) => {
 };
 
 const allStaffData = () => {
-  return mainData('sh').getSheetByName('データベース')
+  return mainData_('sh').getSheetByName('データベース')
     .getDataRange().getValues();
 }
 
 
 const memberData = () => {
-  return mainData('sh').getSheetByName('MGデータベース')
+  return mainData_('sh').getSheetByName('MGデータベース')
     .getDataRange().getDisplayValues();
   // const keys = database[0];
   // database.shift();
@@ -281,8 +282,8 @@ const memberData = () => {
   // return object;
 }
 
-const getName = () => {
-  const database = mainData('sh').getSheetByName('MGデータベース')
+const getName_ = () => {
+  const database = mainData_('sh').getSheetByName('MGデータベース')
     .getDataRange().getDisplayValues();
   const label = database[0];
 

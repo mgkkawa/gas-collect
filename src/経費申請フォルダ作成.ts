@@ -14,7 +14,7 @@ const newExform = () => {
     何年何月の経費申請書、フォルダーを作成したいのか
     スプレッドシートを確認*/
   const sheetnamelast = ['', '', '(2)', '※領収書のみ'];
-  const cr = mainData('cr');
+  const cr = mainData_('cr');
   const crs = cr.getSheetByName('経費申請書フォルダ作成用');
   const check_Year_Month = crs.getRange(1, 1, 2, 1).getDisplayValues();
   const year = check_Year_Month.shift();
@@ -22,10 +22,10 @@ const newExform = () => {
   const sheetname = `${year}年${month}月`;
   const foldername = `${year}.${String(month).padStart(2, '0')}`;
   sheetnamelast.forEach(function (s) { return Logger.log(sheetname + s); });
-  const names = staffData(['name']).flat();
+  const names = staffData_(['name']).flat();
   /*経費申請書原本のスプレッドシートを参照
     各種成型しコピー、各スタッフフォルダへコピー*/
-  const ex = mainData('ex');
+  const ex = mainData_('ex');
   const exs = ex.getSheets();
   exs.forEach(function (sheet, index) {
     if (index != 1) { sheet.hideSheet(); }
@@ -56,6 +56,7 @@ const newExform = () => {
 function nameSet(sheet, name) {
   sheet.setName(name);
 }
+
 function firstHalfShow() {
   var base_folder = DriveApp.getFolderById('1UT1mgpweki9sixQ3ZCteV1Oh_p49JvYq');
   var folderName = Utilities.formatDate(new Date(), 'JST', 'yyyy.MM');

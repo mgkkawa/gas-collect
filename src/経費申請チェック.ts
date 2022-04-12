@@ -18,15 +18,15 @@ const calculation = (timing) => {
   url += "#gid=" + shid;
   let body = url + '\n\n' + timing + ' 経費計算を開始しました。\n計算完了までしばらくお待ちください。';
   try {
-    LINEWORKS.sendMsgRoom(setOptions(), '130629262', body);
+    LINEWORKS.sendMsgRoom(setOptions_(), '130629262', body);
   }
   catch (_c) {
     var addbody = '経費申請用グループへの投稿にエラーが発生しました。';
     addbody += '\n\n送信予定の本文は以下の通りです。\n';
     body = addbody + body;
-    LINEWORKS.sendMsg(setOptions(), accountId('山崎達也'), body);
+    LINEWORKS.sendMsg(setOptions_(), accountId_('山崎達也'), body);
   }
-  //LINEWORKS.sendMsg(setOptions(), accountId(), body);
+  //LINEWORKS.sendMsg(setOptions_(), accountId_(), body);
   const formlabel = [['スタッフ名', '口座', '', '', '', '合計金額', '減算額合計', '当月振込額合計'], ['', '銀行', '支店', '口座番号', '口座名義', '', '', '']];
   exsheet.getRange(1, 1, formlabel.length, formlabel[0].length).setValues(formlabel)
     .setHorizontalAlignment('center').setVerticalAlignment('middle').setFontSize(9).setFontWeight('bold').setBackground('#D3D3D3');
@@ -40,7 +40,7 @@ const calculation = (timing) => {
   const sheet = sheets[0];
   let dat = sheet.getDataRange().getValues();
   const keys = dat[0];
-  dat = objectCut(datObject(dat), keys).map(function (array) {
+  dat = objectCut_(datObject_(dat), keys).map(function (array) {
     array = array.map(function (x) {
       var type = Object.prototype.toString.call(x);
       if (type == "[object Date]") {
@@ -54,8 +54,8 @@ const calculation = (timing) => {
   });
   const check = new Date(2022, new Date().getMonth(), 1, 0, 0, 0, 0);
   //Logger.log(Utilities.formatDate(check, 'JST', 'yyyy/MM/dd'))
-  const staffdata = staffData(['name', '銀行名', '支店名', '口座番号', 'スタッフ名']);
-  let checkname = staffdata.map(function (array) { return array[0]; });
+  const staffData = staffData_(['name', '銀行名', '支店名', '口座番号', 'スタッフ名']);
+  let checkname = staffData.map(function (array) { return array[0]; });
   let paylist = [];
   let allsum = 0;
   let allpaid = 0;
@@ -115,7 +115,7 @@ const calculation = (timing) => {
     }
     catch (_b) { }
     ;
-    var set = staffdata.filter(function (array) { return array.indexOf(staff) != -1; }).concat([sum, paid, (sum + paid)]).flat();
+    var set = staffData.filter(function (array) { return array.indexOf(staff) != -1; }).concat([sum, paid, (sum + paid)]).flat();
     paylist.push(set);
     allsum += sum;
     Logger.log(pay);

@@ -1,8 +1,8 @@
 // 集約したトリガーを格納
 
 const zeroOclock = () => {
-  toDay();
-  suiteCase();
+  toDay_();
+  suiteCase_();
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -16,7 +16,7 @@ const zeroOclock = () => {
 
 const nineOclock = () => {
   workerTemp();
-  tatsuyacheck();
+  tatsuyacheck_();
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -29,7 +29,7 @@ const nineOclock = () => {
 }
 
 const nineHirfOclock = () => {
-  visitCheck();
+  visitCheck_();
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -43,7 +43,7 @@ const nineHirfOclock = () => {
 
 const fifteenOclock = () => {
   holiDayTemp();
-  tatsuyacheck();
+  tatsuyacheck_();
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);

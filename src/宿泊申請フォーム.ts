@@ -1,5 +1,5 @@
-const tatsuyacheck = () => {
-  const mgshift = mainData('mg').getSheetByName(Utilities.formatDate(start_time, 'JST', 'yyyy.M'));
+const tatsuyacheck_ = () => {
+  const mgshift = mainData_('mg').getSheetByName(Utilities.formatDate(start_time, 'JST', 'yyyy.M'));
   const shiftDat = mgshift.getDataRange().getValues().map(values => {
     return values.filter((values, index) => index > 0);
   });
@@ -10,21 +10,21 @@ const tatsuyacheck = () => {
   const tatsuya_today = String(tatsuyaShift[today]);
   const tatsuya_check = (tatsuya_today != '休' && tatsuya_today != '休業');
   if (tatsuya_check) {
-    stayCheck();
+    stayCheck_();
   }
 };
 
-const stayCheck = () => {
+const stayCheck_ = () => {
   let body = '未回答の宿泊申請リストは以下の通りです。\n';
 
-  const st = mainData('st').getSheetByName('フォームの回答 1');
+  const st = mainData_('st').getSheetByName('フォームの回答 1');
   const stdat = st.getDataRange().getValues().filter((values, index) =>
     index > 0 && values[values.length - 1] != true
   );
 
   if (stdat[0] == null) { return; }
 
-  const vcag = mainData('vc').getSheetByName('集約');
+  const vcag = mainData_('vc').getSheetByName('集約');
   const vcagdat = vcag.getDataRange().getValues();
   const vcaglabel = vcagdat.filter(values => values.includes('日程')).flat();
   const keys = ['会場\n名称', '会場\n住所', 'シフト開始', 'シフト終了']
@@ -36,8 +36,8 @@ const stayCheck = () => {
   const trim_vcag = vcagdat.map(values => keys.map(key => values[key]));
   const trim_member = vcagdat.map(values => member_keys.map(key => values[key]));
 
-  const staffs = staffData(['name']).flat();
-  const address = staffData(['住所']).flat();
+  const staffs = staffData_(['name']).flat();
+  const address = staffData_(['住所']).flat();
   const set_time = [];
 
   stdat.forEach(values => {

@@ -14,25 +14,8 @@
 // 会場連絡が必要な会場を表示
 // 会場連絡が必要な会場があればアラートを検討
 
-
-
-const venCallUI = () => {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('追加機能')
-    .addItem('開催可否確認', 'holdCheck')
-    .addSeparator()
-    .addItem("会場連絡", "venCall")
-    .addSeparator()
-    .addItem("LOGCLOCK", "logClock")
-    .addSeparator()
-    .addItem("翌月分マスタ追加", "addMaster")
-    .addSeparator()
-    .addItem("備品お渡し登録", "supply")
-    .addToUi();
-}
-
 const casting = () => {
-  const venue_call = mainData('vc');
+  const venue_call = mainData_('vc');
   const vc_casting = venue_call.getSheetByName('キャスティング');
   const origin_casting_data = vc_casting.getDataRange().getDisplayValues();
   const vc_keys = ['通番', '日付', '会場名', '開始チェック', '変更後メンバー', 'メンバー1', 'メンバー2', 'メンバー3', 'メンバー4', 'メンバー5']
@@ -42,7 +25,7 @@ const casting = () => {
   }).filter((values, index) => index != 0 && values[4] != '' && values[5] != '');
   var start_month = start_time.getMonth() + 1;
 
-  const assign_sheet = mainData('as').getSheetByName(Utilities.formatDate(start_time, 'JST', 'yyyyMM'));
+  const assign_sheet = mainData_('as').getSheetByName(Utilities.formatDate(start_time, 'JST', 'yyyyMM'));
   const origin_assign_data = assign_sheet.getDataRange().getValues();
   const as_label = origin_assign_data.filter(values => values.includes('日程')).flat();
   var as_main_col = as_label.indexOf('メイン\n講師') + 1;
@@ -84,22 +67,22 @@ const casting = () => {
       ++check_ind;
     }
   })
-  monthReset();
-  shiftSet();
+  monthReset_();
+  shiftSet_();
 };
 
-const monthReset = (date = null) => {
+const monthReset_ = (date: Date = null) => {
   if (date == null) { date = new Date() };
   date.setMonth(date.getMonth() + 1);
   date.setDate(0);
-  var nh = mainData('nh');
+  var nh = mainData_('nh');
   var nhs = nh.getSheetByName(Utilities.formatDate(date, 'JST', 'yyyy.MM'));
   const origin_nh_data = nhs.getDataRange().getValues();
   const nh_names = origin_nh_data.map(values => values = values[0]).flat()
   const nh_dat = origin_nh_data.filter((values, index) => index > 0 && index <= 50)
     .map(values => values.filter((value, index) => index > 0 && index <= date.getDate()));
 
-  var shift_sheet = mainData('sh').getSheetByName(Utilities.formatDate(date, 'JST', 'yyyy.MM'));
+  var shift_sheet = mainData_('sh').getSheetByName(Utilities.formatDate(date, 'JST', 'yyyy.MM'));
   const origin_sh_data = shift_sheet.getDataRange().getValues().map((values, index) => {
     if (index == 0) {
       return values.map(value => valueDate(value));
@@ -113,9 +96,9 @@ const monthReset = (date = null) => {
     .setValues(nh_dat);
 }
 
-const shiftSet = (date = null) => {
+const shiftSet_ = (date: Date = null) => {
   if (date == null) { date = new Date() };
-  var vc = mainData('vc');
+  var vc = mainData_('vc');
   var vcag = vc.getSheetByName('集約');
   date.setDate(1);
   const start = Utilities.formatDate(date, 'JST', 'MM/dd');
@@ -133,7 +116,7 @@ const shiftSet = (date = null) => {
     .filter((values, index) => index >= start_row && index <= end_row);
   const trim_vcdays = trim_vcagd.map(values => values[0]).flat();
 
-  const sh = mainData('sh');
+  const sh = mainData_('sh');
   const shs = sh.getSheetByName(Utilities.formatDate(date, 'JST', 'yyyy.MM'));
   const shsd = shs.getDataRange().getValues();
   const shdays = shsd.filter(values => values.includes('ス')).flat().map(value => valueDate(value));
@@ -155,7 +138,7 @@ const shiftSet = (date = null) => {
 }
 
 const logClock = () => {
-  const vc = mainData('vc');
+  const vc = mainData_('vc');
   const vcc = vc.getSheetByName('LOGCLOCK');
   const origin_clock_data = vcc.getDataRange().getValues();
   const clock_label = origin_clock_data.filter(values => values.includes('日程')).flat();
@@ -212,7 +195,7 @@ const logClock = () => {
 }
 
 const venCall = () => {
-  const vc = mainData('vc');
+  const vc = mainData_('vc');
 
   const vcs = vc.getSheetByName('会場連絡');
   const origin_vc_data = vcs.getDataRange().getValues();
@@ -234,7 +217,7 @@ const venCall = () => {
     .flat().map(value => valueDate(value));
 
 
-  const as = mainData('as');
+  const as = mainData_('as');
   const ass = as.getSheetByName(Utilities.formatDate(start_time, 'JST', 'yyyyMM'));
   const assd = ass.getDataRange().getValues();
   const asslabel = assd.filter(values => values.includes('日程')).flat();
@@ -292,7 +275,7 @@ const addMaster = () => {
   const year = now.getFullYear();
   const month = now.getMonth() + 2;
   const shname = year + String(month).padStart(2, '0');
-  const ass = mainData('as').getSheetByName(shname);
+  const ass = mainData_('as').getSheetByName(shname);
   switch (true) {
     case ass.getRange(1, 1).isBlank():
       var firstRow = ass.getRange(1, 1).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow();
@@ -313,7 +296,7 @@ const addMaster = () => {
       col = col + '2:' + col;
       var numFunc = '=ARRAYFORMULA(IF(' + col + '<>"",TO_TEXT(' + col + '),""))';
   }
-  const vc = mainData('vc');//[開発用]新会場連絡シート
+  const vc = mainData_('vc');//[開発用]新会場連絡シート
   try {
     var vcadd = vc.insertSheet(shname);
   } catch (e) {
@@ -340,17 +323,17 @@ const addMaster = () => {
   vcag.getRange(vcagLastRow + 1, 1).setValue(func);
   addressUPDATE(vcag);
 }
-const toDay = () => {
+const toDay_ = () => {
   const today = new Date();
   const setFullYear = today.getFullYear();
   const setMonth = today.getMonth() + 1;
   const setDate = today.getDate();
-  const vcag = mainData('vc').getSheetByName('集約');
+  const vcag = mainData_('vc').getSheetByName('集約');
   vcag.getRange(1, 1, 1, 3).setValues([[setFullYear, setMonth, setDate]]);
 }
 
 const addressUPDATE = (sheet) => {
-  if (!sheet) { sheet = mainData('vc').getSheetByName('集約'); }
+  if (!sheet) { sheet = mainData_('vc').getSheetByName('集約'); }
   const sheet_dat = sheet.getDataRange().getValues();
   let label = sheet_dat.filter(values => values.includes('会場\n住所')).flat();
   if (!label) { label = sheet.getRange(2, 1, 1, sheet.getLastColumn()).getValues().flat(); }
@@ -368,11 +351,11 @@ const addressUPDATE = (sheet) => {
 }
 
 const supply = () => {
-  const vc = testData('vc');
+  const vc = mainData_('vc');
 
   const vcsu = vc.getSheetByName('備品お渡しリスト');
   const vcsud = vcsu.getDataRange().getDisplayValues();
-  const members = [getName(), vcsud[2][2]];
+  const members = [getName_(), vcsud[2][2]];
 
   const vcsu_set = [
     //['開催日', '会場名', '開始時間', '配備先', '配備予定日',
@@ -446,8 +429,8 @@ const supply = () => {
   vcsu.getRangeList(['C3:D10', 'E7:G10', 'D23:D29', 'D41:D47', 'D59:D65', 'D77:D83']).clearContent();
 }
 
-const suiteCase = () => {
-  const sc = mainData('sc');
+const suiteCase_ = () => {
+  const sc = mainData_('sc');
   const scs = sc.getSheetByName(valueDate(start_time, 'yyyy.MM'));
   const scsd = scs.getDataRange().getValues();
   const scsd_label = scsd.filter(values => values.includes('所持')).flat()
@@ -478,7 +461,7 @@ const suiteCase = () => {
     .map(values => values.filter((value, index) => index >= today_ind));
 
 
-  const vc = mainData('vc');
+  const vc = mainData_('vc');
   const vcsuite = vc.getSheetByName('スーツケース②');
   vcsuite.getRange(3, 2, trim_data.length, trim_data[0].length).clearContent().setValues(trim_data);
 
@@ -494,7 +477,7 @@ const holdCheck = () => {
   const check_date = valueDate(start_time);
   const weekdays = ['(日)', '(月)', '(火)', '(水)', '(木)', '(金)', '(土)'];
 
-  const vcag = mainData('vc').getSheetByName('集約');
+  const vcag = mainData_('vc').getSheetByName('集約');
   const vcagd = vcag.getDataRange().getValues();
   const vcag_label = vcagd.filter(values => values.includes('日程')).flat();
   const vcag_days = vcagd.map(values => values.filter((value, index) =>
@@ -530,7 +513,7 @@ const holdCheck = () => {
     })
     body += '\nでのスマホ教室の開催可否はいかがでしょうか？\n';
     body += 'お忙しいところお手数ですが、\nご教示頂ければ幸いです。';
-    LINEWORKS.sendMsg(setOptions(), accountId('大山夏美'), body);
+    LINEWORKS.sendMsg(setOptions_(), accountId_('大山夏美'), body);
   });
-  // LINEWORKS.sendMsg(setOptions(), accountId(''), body);
+  // LINEWORKS.sendMsg(setOptions_(), accountId_(''), body);
 }

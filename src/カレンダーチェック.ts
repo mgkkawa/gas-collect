@@ -1,4 +1,4 @@
-const visitCheck = () => {
+const visitCheck_ = () => {
   const calendar = CalendarApp.getCalendarById('mg-dsg@mg-k.co.jp');
   const today_event = calendar.getEventsForDay(start_time);
   let body = '';
@@ -17,5 +17,5 @@ const visitCheck = () => {
       body += `\n${title}\n${time}\n${description}\n`;
     })
   }
-  LINEWORKS.sendMsgRoom(setOptions(), accountId('room'), body);
+  LINEWORKS.sendMsgRoom(setOptions_(), accountId_('room'), body);
 }

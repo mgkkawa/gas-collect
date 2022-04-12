@@ -1,7 +1,7 @@
-const workerTemp = () => { workercheck('出勤'); };
-const holiDayTemp = () => { workercheck(); }
+const workerTemp = () => { workercheck_('出勤'); };
+const holiDayTemp = () => { workercheck_(); }
 
-const sendCondition = (event) => {
+const sendCondition_ = (event) => {
   // if (!event) {
   //   const formResponses = FormApp.openById("1S8rMG-CuGyWV1-bnRtGz4EM-LTh7VJonObL_UvhBJtM").getResponses();
   //   const lastResponses = formResponses.length - 1;
@@ -17,18 +17,18 @@ const sendCondition = (event) => {
     let msg = '検温報告にて対象者の報告がありました。\nスケジュールを確認しましょう。\n';
     msg += `\n${name}さん :${temp}℃\n体調:${condition}\n自覚症状:${symptom}`;
 
-    LINEWORKS.sendMsgRoom(setOptions(), accountId('room'), msg);
+    LINEWORKS.sendMsgRoom(setOptions_(), accountId_('room'), msg);
 
-    const eMailAddress = slimstaffData([name], ['e-mail']);
+    const eMailAddress = slimstaffData_([name], ['e-mail']);
     const sub = '【重要】追加報告が必要です。';
-    let body = mailBody(name);
+    let body = mailBody_(name);
 
-    GmailApp.sendEmail(eMailAddress, sub, body, { from: accountId('option') });
+    GmailApp.sendEmail(eMailAddress, sub, body, { from: accountId_('option') });
   }
 }
 
-const workercheck = (work = null) => {
-  const tm = mainData('tm');
+const workercheck_ = (work: string = null) => {
+  const tm = mainData_('tm');
   const tms = tm.getSheetByName('Check');
   const tmsd = tms.getDataRange().getValues()
     .filter((values, index) => index > 0 && values[2] != true)
@@ -45,13 +45,13 @@ const workercheck = (work = null) => {
   body += '検温結果報告フォーム\n';
   body += 'https://docs.google.com/forms/d/e/1FAIpQLScMWgzo6FBP0DOtW5i45CzZayUs1PUvRAq7PWsubD9z8w_lfA/viewform\n';
   const names = trim_tmsd.map(values => values = values[0]).flat();
-  const mails = slimstaffData(names, ['name', 'e-mail', 'スタッフ名']);
+  const mails = slimstaffData_(names, ['name', 'e-mail', 'スタッフ名']);
   mails.forEach(values => {
-    GmailApp.sendEmail(values[1], sub, body, { from: accountId('options') });
+    GmailApp.sendEmail(values[1], sub, body, { from: accountId_('options') });
   });
 }
 
-const mailBody = (e) => {
+const mailBody_ = (e) => {
   //本文を定義
   //emailFromは回答者名
   let body = e + 'さん\n\n';

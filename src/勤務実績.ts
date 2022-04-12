@@ -22,9 +22,9 @@ const workRecord = (timing = '後半') => {
   // sh=シフト表
   // wr=勤務実績表
   // vc=会場連絡シート
-  const sh = mainData('sh');
-  const wr = mainData('wr');
-  const vc = mainData('vc');
+  const sh = mainData_('sh');
+  const wr = mainData_('wr');
+  const vc = mainData_('vc');
   const now = new Date();//現在時刻の取得
   //引数timing の情報を確認
   if (timing == '前半') {
@@ -141,10 +141,9 @@ const workRecord = (timing = '後半') => {
   wrs.getRange(3, 2, wshift.length, wshift[0].length).setValues(wshift);
 }
 
-
 const eoMonthEmail = () => {
   const now = new Date();
-  const wr = mainData('wr');
+  const wr = mainData_('wr');
   const wrs = wr.getSheetByName('月後半用');
   try { var write = wr.insertSheet(Utilities.formatDate(now, 'JST', 'yyyyMMdd')); }
   catch { var write = wr.getSheetByName(Utilities.formatDate(now, 'JST', 'yyyyMMdd')); }
@@ -154,7 +153,7 @@ const eoMonthEmail = () => {
   const namelist = label.filter(a => a != '');
   const month = now.getMonth();
   const sub = month + '月勤務実績';
-  const origindata = staffData(['name', 'familyname', 'e-mail']);
+  const origindata = staffData_(['name', 'familyname', 'e-mail']);
   const names = origindata.map(a => a = a[0]);
   namelist.forEach(a => {
     var famName = origindata[names.indexOf(a)][1];
@@ -170,7 +169,7 @@ const eoMonthEmail = () => {
 }
 
 const sheetClear = () => {
-  var ss = mainData('wr');
+  var ss = mainData_('wr');
   var sh = ss.getSheetByName('月後半用');
   sh.clearFormats();
 }
@@ -251,6 +250,7 @@ const infoBody = (values) => {
   }
   return body;
 }
+
 const isNaN_ = (value) => {
   return typeof value === 'number' && value !== value;
 }
