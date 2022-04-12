@@ -347,15 +347,6 @@ const toDay = () => {
   const setDate = today.getDate();
   const vcag = mainData('vc').getSheetByName('集約');
   vcag.getRange(1, 1, 1, 3).setValues([[setFullYear, setMonth, setDate]]);
-  today.setDate(today.getDate() + 1);
-  const triggers = ScriptApp.getProjectTriggers();
-  for (let _i = 0, triggers_1 = triggers; _i < triggers_1.length; _i++) {
-    let trigger = triggers_1[_i];
-    if (trigger.getHandlerFunction() == 'toDay') {
-      ScriptApp.deleteTrigger(trigger);
-    }
-  }
-  ScriptApp.newTrigger('toDay').timeBased().at(today).create();
 }
 
 const addressUPDATE = (sheet) => {
