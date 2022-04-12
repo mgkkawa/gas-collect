@@ -47,7 +47,7 @@ const workercheck = (work = null) => {
   const names = trim_tmsd.map(values => values = values[0]).flat();
   const mails = slimstaffData(names, ['name', 'e-mail', 'スタッフ名']);
   mails.forEach(values => {
-    GmailApp.sendEmail(values[1], sub, body, { from: accountId('option') });
+    GmailApp.sendEmail(values[1], sub, body, { from: accountId('options') });
   });
 }
 
