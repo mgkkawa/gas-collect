@@ -21,13 +21,13 @@ const newExform = () => {
   const month = check_Year_Month.shift();
   const sheetname = `${year}年${month}月`;
   const foldername = `${year}.${String(month).padStart(2, '0')}`;
-  sheetnamelast.forEach(function (s) { return Logger.log(sheetname + s); });
+  sheetnamelast.forEach(s => { return Logger.log(sheetname + s); });
   const names = staffData_(['name']).flat();
   /*経費申請書原本のスプレッドシートを参照
     各種成型しコピー、各スタッフフォルダへコピー*/
   const ex = mainData_('ex');
   const exs = ex.getSheets();
-  exs.forEach(function (sheet, index) {
+  exs.forEach((sheet, index) => {
     if (index != 1) { sheet.hideSheet(); }
     else { sheet.setName(sheetname).getRange(1, 2, 1, 2).setValues([[sheetname]]); }
     if (index >= 1 && index <= 3) { sheet.setName(sheetname + sheetnamelast[index]); }
@@ -38,11 +38,11 @@ const newExform = () => {
   var folder = DriveApp.getFolderById('1UT1mgpweki9sixQ3ZCteV1Oh_p49JvYq');
   var id = folder.createFolder(foldername).getId();
   var mfolder = DriveApp.getFolderById(id);
-  names.forEach(function (name, i) {
+  names.forEach((name, i) => {
     var sfolder = mfolder.createFolder(String(i + 1).padStart(2, '0') + '.' + name);
     var fileId = origin.makeCopy(formatName, sfolder).getId();
     var sheets = SpreadsheetApp.openById(fileId).addEditors(['k.kawate@mg-k.co.jp', 't.yamazaki@mg-k.co.jp', 'misano@mg-k.co.jp']).getSheets();
-    sheets.forEach(function (sheet, x) {
+    sheets.forEach((sheet, x) => {
       if (x != 1) {
         sheet.hideSheet();
       }
@@ -53,11 +53,11 @@ const newExform = () => {
   });
 }
 //sheet(スプレッドシートのタブ)とname(タブ名)を指定すればシート名変更
-function nameSet(sheet, name) {
+const nameSet = (sheet, name) => {
   sheet.setName(name);
 }
 
-function firstHalfShow() {
+const firstHalfShow = () => {
   var base_folder = DriveApp.getFolderById('1UT1mgpweki9sixQ3ZCteV1Oh_p49JvYq');
   var folderName = Utilities.formatDate(new Date(), 'JST', 'yyyy.MM');
   var folders = base_folder.getFoldersByName(folderName);
@@ -90,7 +90,7 @@ function firstHalfShow() {
   }
   ScriptApp.newTrigger('firstHalfShow').timeBased().at(setTime).create();
 }
-function eoMonthShow() {
+const eoMonthShow = () => {
   var month = new Date(new Date().getFullYear(), new Date().getMonth() - 1);
   var base_folder = DriveApp.getFolderById('1UT1mgpweki9sixQ3ZCteV1Oh_p49JvYq');
   var folderName = Utilities.formatDate(month, 'JST', 'yyyy.MM');
@@ -122,7 +122,7 @@ function eoMonthShow() {
   }
   ScriptApp.newTrigger('eoMonthShow').timeBased().at(setTime).create();
 }
-function firstHalfHide() {
+const firstHalfHide = () => {
   var base_folder = DriveApp.getFolderById('1UT1mgpweki9sixQ3ZCteV1Oh_p49JvYq');
   var folderName = Utilities.formatDate(new Date(), 'JST', 'yyyy.MM');
   var folders = base_folder.getFoldersByName(folderName);
@@ -143,5 +143,5 @@ function firstHalfHide() {
     }
   }
 }
-function exForm() {
+const exForm = () => {
 }

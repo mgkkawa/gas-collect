@@ -30,12 +30,8 @@ function doGet() {
 }
 
 const triggerset = (t: string, time: Date) => {
-  if (!t) {
-    t = 'check';
-  }
-  ;
   const triggers = ScriptApp.getProjectTriggers();
-  triggers.forEach(function (trigger) {
+  triggers.forEach(trigger => {
     if (trigger.getHandlerFunction() == t) {
       ScriptApp.deleteTrigger(trigger);
     }
@@ -107,23 +103,8 @@ const addressCheck_ = () => {
     }
   }
   var addDat = sheet.getRange(row, addCol + 1, sheet.getLastRow() - row).getDisplayValues().flat();
-  function check(str) {
-    return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (s) {
-      return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-    });
-  }
-  function kanji2num(str) { // 漢数字を半角数字に
-    var reg;
-    var kanjiNum = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '〇'];
-    var num = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-    for (var i = 0; i < num.length; i++) {
-      reg = new RegExp(kanjiNum[i], 'g'); // ex) reg = /三/g
-      str = str.replace(reg, num[i]);
-    }
-    return str;
-  }
   var reg = /[一二三四五六七八九十〇](?=丁目|番地|号)|番(?=$|[0-9 ])/g
-  addDat = addDat.map(value => check(value)).map(value => value.replace(reg, function (s) { return kanji2num(s); }));
+  addDat = addDat.map(value => zen2han_(value)).map(value => value.replace(reg, s => { return kanji2num_(s); }));
   addDat = addDat.map(value => value.replace(/(?<=[0-9])(丁目|番地|番地の|[番のー－ｰ‐])(?=[0-9])/g, '-'));
   addDat = addDat.map(value => value.replace(/(?<=[0-9])(番地|[番号])(?!地|[0-9])[　| ]?|[　]|\n|\r\n|\r/g, ' '));
   var setAdd = addDat.map(address => [address.replace(/  /g, ' ')]);
@@ -165,7 +146,7 @@ const convertDate_ = (values, str) => {
   //date型をstringに変換
   for (var i = 0; i < values.length; i++) {
     var newValues = values[i].map(
-      function (x) {
+      x => {
         var type = Object.prototype.toString.call(x);
         if (type == "[object Date]") {
           return x = Utilities.formatDate(x, 'JST', str);
@@ -182,7 +163,7 @@ const convertObj_ = (values) => {
   var reg = /^....\/..\/..$/;
   for (var i = 0; i < values.length; i++) {
     var newValues = values[i].map(
-      function (x) {
+      x => {
         var regmatch = x.match(reg);
         if (regmatch != null) {
           return x = String(x.match(/(?!<\/)..\/..$/));
@@ -212,7 +193,7 @@ const valueDate = (value, str = 'MM/dd') => {
 
 const staffData_ = (keys = ['スタッフ名', '銀行名', '支店名', '口座番号']) => {
   const data = staffObject_();
-  const array = data.map(function (staff) { return keys.map(function (key) { return staff[key]; }); });
+  const array = data.map(staff => { return keys.map(key => { return staff[key]; }); });
   return array;
 };
 
@@ -220,9 +201,9 @@ const staffObject_ = () => {
   const database = SpreadsheetApp.openById('14KJJ0cDL_iwIyYOFpHoutgBa1IhFz-C0bGLrru-V6Vw').getSheetByName('データベース').getDataRange().getDisplayValues();
   const keys = database[0];
   database.shift();
-  const array = database.map(function (values) {
+  const array = database.map(values => {
     let hash = {};
-    values.map(function (value, index) {
+    values.map((value, index) => {
       hash[keys[index]] = value;
     });
     return hash;
@@ -265,7 +246,7 @@ const zenkana2Hankana = (str) => {
   };
   const reg = new RegExp('(' + Object.keys(kanaMap).join('|') + ')', 'g');
   return str
-    .replace(reg, function (match) {
+    .replace(reg, match => {
       return kanaMap[match];
     })
     .replace(/゛/g, 'ﾞ')
@@ -314,4 +295,21 @@ const getName_ = () => {
   const name = database.filter(values => values.includes(account))
     .flat()[label.indexOf('name')];
   return name;
+}
+
+const kanji2num_ = (str) => { // 漢数字を半角数字に
+  var reg;
+  var kanjiNum = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '〇'];
+  var num = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+  for (var i = 0; i < num.length; i++) {
+    reg = new RegExp(kanjiNum[i], 'g'); // ex) reg = /三/g
+    str = str.replace(reg, num[i]);
+  }
+  return str;
+}
+
+const zen2han_ = (str) => {
+  return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => {
+    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+  });
 }

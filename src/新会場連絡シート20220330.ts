@@ -14,7 +14,7 @@
 // 会場連絡が必要な会場を表示
 // 会場連絡が必要な会場があればアラートを検討
 
-function writeLogClock() {
+const writeLogClock = () => {
   const vc = mainData_('vc');
   const vcc = vc.getSheetByName('LOGCLOCK');
   const origin_clock_data = vcc.getDataRange().getValues();
@@ -699,19 +699,3 @@ const split_b_ = (value) => {
   return value.match(/(?<=\s).*$/);
 }
 
-const kanji2num_ = (str) => { // 漢数字を半角数字に
-  var reg;
-  var kanjiNum = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '〇'];
-  var num = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
-  for (var i = 0; i < num.length; i++) {
-    reg = new RegExp(kanjiNum[i], 'g'); // ex) reg = /三/g
-    str = str.replace(reg, num[i]);
-  }
-  return str;
-}
-
-const zen2han_ = (str) => {
-  return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (s) {
-    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-  });
-}

@@ -40,8 +40,8 @@ const calculation = (timing) => {
   const sheet = sheets[0];
   let dat = sheet.getDataRange().getValues();
   const keys = dat[0];
-  dat = objectCut_(datObject_(dat), keys).map(function (array) {
-    array = array.map(function (x) {
+  dat = objectCut_(datObject_(dat), keys).map(array => {
+    array = array.map(x => {
       var type = Object.prototype.toString.call(x);
       if (type == "[object Date]") {
         return x = x.getTime();
@@ -55,7 +55,7 @@ const calculation = (timing) => {
   const check = new Date(2022, new Date().getMonth(), 1, 0, 0, 0, 0);
   //Logger.log(Utilities.formatDate(check, 'JST', 'yyyy/MM/dd'))
   const staffData = staffData_(['name', '銀行名', '支店名', '口座番号', 'スタッフ名']);
-  let checkname = staffData.map(function (array) { return array[0]; });
+  let checkname = staffData.map(array => { return array[0]; });
   let paylist = [];
   let allsum = 0;
   let allpaid = 0;
@@ -67,12 +67,12 @@ const calculation = (timing) => {
     case '15日〆分':
       let time = check.getTime();
     default:
-      dat = dat.filter(function (array) { return array[0] >= time && array[2] == timing; })
-        .map(function (array) {
+      dat = dat.filter(array => { return array[0] >= time && array[2] == timing; })
+        .map(array => {
           array[3] = Number(array[3].match(/[1-9]?[\d]$/));
           return array;
         });
-      checkname = dat.map(function (array) { return array[1]; });
+      checkname = dat.map(array => { return array[1]; });
   }
   Logger.log(dat);
   Logger.log(checkname);
@@ -90,22 +90,22 @@ const calculation = (timing) => {
     var exform = SpreadsheetApp.openById(id).getSheets();
     var sum = 0;
     var paid = 0;
-    var pay = exform[1].getDataRange().getValues().filter(function (array) { return Number(array[0]) >= 1 && array[6] != ''; });
-    var ex2 = exform[2].getDataRange().getValues().filter(function (array) { return Number(array[0]) >= 1 && array[6] != ''; });
-    ex2.forEach(function (array) { return pay.push(array); });
+    var pay = exform[1].getDataRange().getValues().filter(array => { return Number(array[0]) >= 1 && array[6] != ''; });
+    var ex2 = exform[2].getDataRange().getValues().filter(array => { return Number(array[0]) >= 1 && array[6] != ''; });
+    ex2.forEach(array => { return pay.push(array); });
     if (timing == '前借分') {
-      pay = pay.filter(function (array) {
+      pay = pay.filter(array => {
         return array[3] >= dat[checkname.indexOf(staff)][3]
           && array[3] <= dat[checkname.indexOf(staff)][3] + dat[checkname.indexOf(staff)][4];
       });
     }
-    pay = pay.map(function (array) {
+    pay = pay.map(array => {
       array[0] = staff;
       sum += array[6];
       return array;
     });
     try {
-      exform[4].getDataRange().getValues().forEach(function (a, x) {
+      exform[4].getDataRange().getValues().forEach((a, x) => {
         if (a[0] != '' && x >= 1) {
           paid += a[0];
           sum -= a[0];
@@ -115,7 +115,7 @@ const calculation = (timing) => {
     }
     catch (_b) { }
     ;
-    var set = staffData.filter(function (array) { return array.indexOf(staff) != -1; }).concat([sum, paid, (sum + paid)]).flat();
+    var set = staffData.filter(array => { return array.indexOf(staff) != -1; }).concat([sum, paid, (sum + paid)]).flat();
     paylist.push(set);
     allsum += sum;
     Logger.log(pay);
@@ -123,15 +123,15 @@ const calculation = (timing) => {
   while (folders.hasNext()) {
     _loop_1();
   }
-  paylist = paylist.sort(function (a, b) {
+  paylist = paylist.sort((a, b) => {
     switch (true) {
       case a[4] > b[4]: return 1;
       case a[4] < b[4]: return -1;
       default: return 0;
     }
   });
-  paylist = paylist.map(function (array) {
-    return array.map(function (value, x) {
+  paylist = paylist.map(array => {
+    return array.map((value, x) => {
       if (x == 3) {
         return String(value).padStart(7, '0');
       }
