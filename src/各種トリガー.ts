@@ -6,10 +6,7 @@ const zeroOclock = () => {
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(0);
-  start_time.setMinutes(0);
-  start_time.setSeconds(0);
-  start_time.setMilliseconds(0);
+  start_time.setHours(0, 0, 0, 0);
 
   triggerset('zeroOclock', start_time);
 }
@@ -20,10 +17,7 @@ const nineOclock = () => {
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(9);
-  start_time.setMinutes(0);
-  start_time.setSeconds(0);
-  start_time.setMilliseconds(0);
+  start_time.setHours(9, 0, 0, 0);
 
   triggerset('nineOclock', start_time);
 }
@@ -33,12 +27,19 @@ const nineHirfOclock = () => {
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(9);
-  start_time.setMinutes(0);
-  start_time.setSeconds(0);
-  start_time.setMilliseconds(0);
+  start_time.setHours(9, 30, 0, 0);
 
   triggerset('nineHirfOclock', start_time);
+}
+
+const twelveOclock = () => {
+  holiDayTemp();
+
+  start_time = new Date();
+  start_time.setDate(start_time.getDate() + 1);
+  start_time.setHours(12, 0, 0, 0);
+
+  triggerset('twelveOclock', start_time);
 }
 
 const fifteenOclock = () => {
@@ -47,10 +48,7 @@ const fifteenOclock = () => {
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(15);
-  start_time.setMinutes(0);
-  start_time.setSeconds(0);
-  start_time.setMilliseconds(0);
+  start_time.setHours(15, 0, 0, 0);
 
 
   triggerset('fifteenOclock', start_time);

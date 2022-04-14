@@ -1,10 +1,32 @@
 var start_time = new Date();
 
 function doGet() {
-  zeroOclock();
-  nineOclock();
-  nineHirfOclock();
-  fifteenOclock();
+  const get_Hours = start_time.getHours();
+  const get_Minutes = start_time.getMinutes();
+
+  if (get_Hours >= 9) {
+    start_time.setDate(start_time.getDate() + 1);
+  }
+  start_time.setHours(9, 0, 0, 0);
+  triggerset('nineOclock', start_time);
+
+  if (get_Hours >= 9 && get_Minutes >= 30) {
+    start_time.setDate(start_time.getDate() + 1);
+  }
+  start_time.setMinutes(30);
+  triggerset('nineHirfOclock', start_time);
+
+  if (get_Hours >= 12) {
+    start_time.setDate(start_time.getDate() + 1);
+  }
+  start_time.setHours(12, 0, 0, 0);
+  triggerset('twelveOclock', start_time);
+
+  if (get_Hours >= 15) {
+    start_time.setDate(start_time.getDate() + 1);
+  }
+  start_time.setHours(15);
+  triggerset('fifteenOclock', start_time);
 }
 
 const triggerset = (t: string, time: Date) => {
