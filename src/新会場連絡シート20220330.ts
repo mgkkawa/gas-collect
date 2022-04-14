@@ -14,38 +14,7 @@
 // 会場連絡が必要な会場を表示
 // 会場連絡が必要な会場があればアラートを検討
 
-const addUi = () => {
-  SpreadsheetApp.getUi()
-    .createMenu('追加メニュー')
-    .addItem('LOGCLOCK', 'writeLogClock')
-    .addSeparator()
-    .addItem('会場連絡', 'writeVenCall')
-    .addSeparator()
-    .addItem('備品お渡しリスト', 'writeSupply')
-    .addSeparator()
-    .addItem('翌月分マスタ追加', 'addMaster')
-    .addToUi();
-}
-
 function writeLogClock() {
-  //GAS実行を許可するGoogleユーザーのメールアドレスの一覧
-  var acceptedUsers = [
-    "n.matsuo@mg-k.co.jp",
-    "k.kawate@mg-k.co.jp",
-    "n.oyama@mg-k.co.jp",
-    "a.kuroki@mg-k.co.jp",
-    "t.yamazaki@mg-k.co.jp",
-    "i.togashi@mg-k.co.jp",
-    "mg-dsg@mg-k.co.jp"];
-
-  //ファイルにアクセスしているGoogleユーザーのメールアドレスを取得する
-  var activeUser = Session.getActiveUser().getEmail();
-
-  //許可されていない場合、GASを終了する
-  if (acceptedUsers.indexOf(activeUser) == -1) {
-    Browser.msgBox("あなたには実行権限がありません。");
-    return;
-  }
   const vc = mainData_('vc');
   const vcc = vc.getSheetByName('LOGCLOCK');
   const origin_clock_data = vcc.getDataRange().getValues();
@@ -110,64 +79,6 @@ function writeLogClock() {
   // console.log(check1_col);
   // console.log(check3_col);}
 }
-
-
-const writeCasting = () => {
-  const venue_call = mainData_('vc');
-  const vc_casting = venue_call.getSheetByName('キャスティング');
-  const origin_casting_data = vc_casting.getDataRange().getDisplayValues();
-  const vc_keys = ['通番', '日付', '会場名', '開始チェック', '変更後メンバー', 'メンバー1', 'メンバー2', 'メンバー3', 'メンバー4', 'メンバー5']
-    .map(key => origin_casting_data[0].indexOf(key)).flat();
-  const trim_casting_data = origin_casting_data.map(values => {
-    return vc_keys.map(key => values[key]);
-  }).filter((values, index) => index != 0 && values[4] != '' && values[5] != '');
-  var start_month = start_time.getMonth() + 1;
-
-  const assign_sheet = mainData_('as').getSheetByName(Utilities.formatDate(start_time, 'JST', 'yyyyMM'));
-  const origin_assign_data = assign_sheet.getDataRange().getValues();
-  const as_label = origin_assign_data.filter(values => values.includes('日程')).flat();
-  var as_main_col = as_label.indexOf('メイン\n講師') + 1;
-  var as_sup_col = as_label.indexOf('サポート講師') + 1;
-  const as_keys = ['日程', '会場\n名称', '開始',].map((key => as_label.indexOf(key))).flat();
-
-  const trim_as_data = origin_assign_data.map(values => {
-    return as_keys.map((key, index) => {
-      if (index == 0) {
-        return valueDate(values[key]);
-      } else { return values[key] }
-    });
-  });
-  const as_days = trim_as_data.map(values => values = values[0]).flat();
-
-  let error_count = 0;
-  trim_casting_data.forEach(values => {
-    console.log(values);
-    let no = values[0];
-    let day = values[1];
-    let venue = values[2];
-    let start = values[3];
-    let main = values[4];
-    let sup = [values[5], values[6], values[7], values[8], values[9]].filter(value => value != '');
-    let check_ind = as_days.indexOf(day);
-    let end_ind = as_days.lastIndexOf(day);
-    while (check_ind <= end_ind) {
-      let venue_check = (trim_as_data[check_ind].includes(venue));
-      try { var start_check = (Utilities.formatDate(trim_as_data[check_ind][2], 'JST', 'HH:mm') == start); }
-      catch { var start_check = false; };
-      if (venue_check && start_check) {
-        try {
-          assign_sheet.getRange(check_ind + 1, as_main_col).setValue(main);
-          assign_sheet.getRange(check_ind + 1, as_sup_col, 1, sup.length).setValues([sup]);
-        }
-        catch { ++error_count; }
-        finally { break; }
-      }
-      ++check_ind;
-    }
-  })
-  monthReset_();
-  shiftSet_();
-};
 
 const writeVenCall = () => {
   const vc = mainData_('vc');
@@ -246,6 +157,63 @@ const writeVenCall = () => {
   vcs.getRange(2, vclabel.indexOf('Check') + 1, vcs.getLastRow() - 1).uncheck();
   vcs.getRange(2, vclabel.indexOf('Check') + 2, vcs.getLastRow() - 1, 5).clear();
 }
+
+const writeCasting = () => {
+  const venue_call = mainData_('vc');
+  const vc_casting = venue_call.getSheetByName('キャスティング');
+  const origin_casting_data = vc_casting.getDataRange().getDisplayValues();
+  const vc_keys = ['通番', '日付', '会場名', '開始チェック', '変更後メンバー', 'メンバー1', 'メンバー2', 'メンバー3', 'メンバー4', 'メンバー5']
+    .map(key => origin_casting_data[0].indexOf(key)).flat();
+  const trim_casting_data = origin_casting_data.map(values => {
+    return vc_keys.map(key => values[key]);
+  }).filter((values, index) => index != 0 && values[4] != '' && values[5] != '');
+  var start_month = start_time.getMonth() + 1;
+
+  const assign_sheet = mainData_('as').getSheetByName(Utilities.formatDate(start_time, 'JST', 'yyyyMM'));
+  const origin_assign_data = assign_sheet.getDataRange().getValues();
+  const as_label = origin_assign_data.filter(values => values.includes('日程')).flat();
+  var as_main_col = as_label.indexOf('メイン\n講師') + 1;
+  var as_sup_col = as_label.indexOf('サポート講師') + 1;
+  const as_keys = ['日程', '会場\n名称', '開始',].map((key => as_label.indexOf(key))).flat();
+
+  const trim_as_data = origin_assign_data.map(values => {
+    return as_keys.map((key, index) => {
+      if (index == 0) {
+        return valueDate(values[key]);
+      } else { return values[key] }
+    });
+  });
+  const as_days = trim_as_data.map(values => values = values[0]).flat();
+
+  let error_count = 0;
+  trim_casting_data.forEach(values => {
+    console.log(values);
+    let no = values[0];
+    let day = values[1];
+    let venue = values[2];
+    let start = values[3];
+    let main = values[4];
+    let sup = [values[5], values[6], values[7], values[8], values[9]].filter(value => value != '');
+    let check_ind = as_days.indexOf(day);
+    let end_ind = as_days.lastIndexOf(day);
+    while (check_ind <= end_ind) {
+      let venue_check = (trim_as_data[check_ind].includes(venue));
+      try { var start_check = (Utilities.formatDate(trim_as_data[check_ind][2], 'JST', 'HH:mm') == start); }
+      catch { var start_check = false; };
+      if (venue_check && start_check) {
+        try {
+          assign_sheet.getRange(check_ind + 1, as_main_col).setValue(main);
+          assign_sheet.getRange(check_ind + 1, as_sup_col, 1, sup.length).setValues([sup]);
+        }
+        catch { ++error_count; }
+        finally { break; }
+      }
+      ++check_ind;
+    }
+  })
+  monthReset_();
+  shiftSet_();
+};
 
 const writeSupply = () => {
   const vc = mainData_('vc');
@@ -386,7 +354,7 @@ const addMaster = () => {
   });
   func = '=QUERY({\'' + shname + '\'!B2:' + NumToA1(label.length + 1) + '},"select ' + colList + ' where Col2 is not null")';
   vcag.getRange(vcagLastRow + 1, 1).setValue(func);
-  addressUPDATE(vcag);
+  addressUPDATE_(vcag);
 }
 const toDay_ = () => {
   const setFullYear = start_time.getFullYear();
@@ -397,7 +365,7 @@ const toDay_ = () => {
   vcag.getRange(1, 1, 1, 3).setValues([[setFullYear, setMonth, setDate]]);
 }
 
-const addressUPDATE = (sheet) => {
+const addressUPDATE_ = (sheet) => {
   if (!sheet) { sheet = mainData_('vc').getSheetByName('集約'); }
   const sheet_dat = sheet.getDataRange().getValues();
   let label = sheet_dat.filter(values => values.includes('会場\n住所')).flat();
@@ -450,7 +418,6 @@ const suiteCase_ = () => {
   const vc = mainData_('vc');
   const vcsuite = vc.getSheetByName('スーツケース②');
   vcsuite.getRange(3, 2, trim_data.length, trim_data[0].length).clearContent().setValues(trim_data);
-
 }
 
 const holdCheck_ = () => {
@@ -615,11 +582,9 @@ const differenceCheck = () => {
       });
     }
   });
-
   const pos_length = trim_vcpos_data.length;
   const row = ag_row - pos_length + 1;
   vcpos.getRange(row, 1, pos_length, vcpos_max_index).setValues(trim_vcpos_data);
-
 }
 
 const sheetUPDATE = () => {
