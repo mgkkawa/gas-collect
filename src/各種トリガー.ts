@@ -1,10 +1,13 @@
 // 集約したトリガーを格納
 
 const zeroOclock = () => {
-  toDay_();
-  suiteCase_();
-  writeForm();
-  diffCheck();
+  try {
+    toDay_();
+    suiteCase_();
+    writeForm_();
+    diffCheck_();
+    folderCreate_();
+  } finally { };
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -14,9 +17,12 @@ const zeroOclock = () => {
 }
 
 const nineOclock = () => {
-  workerTemp();
-  tatsuyacheck_();
-  diffCheck();
+  try {
+    workerTemp();
+    tatsuyacheck_();
+    diffCheck_();
+  }
+  finally { };
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -26,7 +32,8 @@ const nineOclock = () => {
 }
 
 const nineHirfOclock = () => {
-  visitCheck_();
+  try { visitCheck_(); }
+  finally { };
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -36,8 +43,11 @@ const nineHirfOclock = () => {
 }
 
 const twelveOclock = () => {
-  holiDayTemp();
-  diffCheck();
+  try {
+    holiDayTemp();
+    diffCheck_();
+  }
+  finally { };
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -47,9 +57,12 @@ const twelveOclock = () => {
 }
 
 const fifteenOclock = () => {
-  holiDayTemp();
-  tatsuyacheck_();
-  diffCheck();
+  try {
+    holiDayTemp();
+    tatsuyacheck_();
+    diffCheck_();
+  }
+  finally { };
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
