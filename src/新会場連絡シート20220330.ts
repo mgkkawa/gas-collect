@@ -546,7 +546,7 @@ const shiftSet_ = (date = null) => {
   })
 }
 
-const diffCheck = () => {
+const diffCheck_ = () => {
 
   const copy_array = (array) => {
     return copy_label.map((key, index) => {

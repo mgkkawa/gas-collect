@@ -1,4 +1,4 @@
-const writeForm = () => {
+const writeForm_ = () => {
   const start_time = new Date();
   start_time.setHours(0, 0, 0, 0);
   const get_time = start_time.getTime();
