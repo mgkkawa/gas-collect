@@ -1,32 +1,30 @@
 var start_time = new Date();
 
 function doGet() {
+  const get_date = start_time.getDate()
   const get_Hours = start_time.getHours();
   const get_Minutes = start_time.getMinutes();
 
-  if (get_Hours >= 9) {
-    start_time.setDate(start_time.getDate() + 1);
-  }
-  start_time.setHours(9, 0, 0, 0);
-  triggerset('nineOclock', start_time);
+  if (get_Hours >= 15) { start_time.setDate(get_date + 1); };
+  start_time.setHours(15, 0, 0, 0);
+  triggerset('fifteenOclock', start_time);
 
-  if (get_Hours >= 9 && get_Minutes >= 30) {
-    start_time.setDate(start_time.getDate() + 1);
-  }
-  start_time.setMinutes(30);
-  triggerset('nineHirfOclock', start_time);
-
-  if (get_Hours >= 12) {
-    start_time.setDate(start_time.getDate() + 1);
-  }
-  start_time.setHours(12, 0, 0, 0);
+  if (get_Hours >= 12 && get_Hours < 15) { start_time.setDate(get_date + 1); };
+  start_time.setHours(12);
   triggerset('twelveOclock', start_time);
 
-  if (get_Hours >= 15) {
-    start_time.setDate(start_time.getDate() + 1);
-  }
-  start_time.setHours(15);
-  triggerset('fifteenOclock', start_time);
+  if (get_Hours >= 9 && get_Minutes >= 30 && get_Hours < 12) { start_time.setDate(get_date + 1); };
+  start_time.setHours(9, 30, 0, 0);
+  triggerset('nineHirfOclock', start_time);
+
+  if (get_Hours >= 9 && get_Hours < 12) { start_time.setDate(get_date + 1); };
+  start_time.setMinutes(0);
+  triggerset('nineOclock', start_time);
+
+  if (get_Hours < 9) { start_time.setDate(get_date + 1); };
+  start_time.setHours(0);
+  triggerset('zeroOclock', start_time);
+
 }
 
 const triggerset = (t: string, time: Date) => {
@@ -53,6 +51,13 @@ const mainData_ = (s) => {
     case 'ex': return SpreadsheetApp.openById('1D1bUKQviM7mOkZozknLRk2g8_oQ7t6w0EgQc_4l6Vnk'); //経費申請書
     case 'sc': return SpreadsheetApp.openById('1l-2c0yjfQTTcfnuhvOnVkf_aU6NuEXMXveG32nxs_w8'); //新スーツケース管理表
     case 'tm': return SpreadsheetApp.openById('1ZjRt8x-PZ8QUIukTATts1v3n-89JH6R9Hz3wnA6DKC4'); //検温結果報告フォーム(回答)
+
+  }
+}
+
+const mainForm_ = (s) => {
+  switch (s) {
+    case 'together': return FormApp.openById('13pB1ZKTIiMrS1FKa5hHGVIa8sgd4nLXYZfRDRwdzrtQ');
   }
 }
 

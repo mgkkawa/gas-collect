@@ -3,6 +3,8 @@
 const zeroOclock = () => {
   toDay_();
   suiteCase_();
+  writeForm();
+  diffCheck();
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -14,6 +16,7 @@ const zeroOclock = () => {
 const nineOclock = () => {
   workerTemp();
   tatsuyacheck_();
+  diffCheck();
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -34,6 +37,7 @@ const nineHirfOclock = () => {
 
 const twelveOclock = () => {
   holiDayTemp();
+  diffCheck();
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
@@ -45,6 +49,7 @@ const twelveOclock = () => {
 const fifteenOclock = () => {
   holiDayTemp();
   tatsuyacheck_();
+  diffCheck();
 
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);

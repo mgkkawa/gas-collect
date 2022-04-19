@@ -4,3 +4,4 @@
 .claspignore
 !appsscript.json
 !tsconfig.json
+**練習.ts

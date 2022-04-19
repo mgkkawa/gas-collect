@@ -12,7 +12,7 @@ const visitCheck_ = () => {
     today_event.forEach(event => {
       const title = event.getTitle();
       const time = valueDate(event.getStartTime());
-      const description = event.getDescription();
+      const description = event.getDescription().replace(/<br>/, '\n').replace(/<.*>/g, '');
 
       body += `\n${title}\n${time}\n${description}\n`;
     })

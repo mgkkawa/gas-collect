@@ -61,10 +61,18 @@ const writeLogClock = () => {
               if (val && index < 3) { if (index == 0) { return trim_vcpos_data[start][3] } else { return trim_vcpos_data[start][4] } }
               else { return value; }
             });
-          vcpos.getRange(start + 1, vcposlabel.indexOf('メイン\n講師') + 1).setValue(main);
-          vcpos.getRange(start + 1, vcposlabel.indexOf('サポート講師') + 1, 1, sup.length).setValues([sup]);
-          vcpos.getRange(start + 1, vcpos_keys[3] + 1, 1, true_check.length).insertCheckboxes().setValues([true_check]);
-          break;
+          try {
+            vcpos.getRange(start + 1, vcposlabel.indexOf('メイン\n講師') + 1).setValue(main);
+            vcpos.getRange(start + 1, vcposlabel.indexOf('サポート講師') + 1, 1, sup.length).setValues([sup]);
+          }
+          catch (e) {
+            true_check.splice(2, 1, false);
+            Browser.msgBox('アサイン数を再度確認してください。')
+          }
+          finally {
+            vcpos.getRange(start + 1, vcpos_keys[3] + 1, 1, true_check.length).insertCheckboxes().setValues([true_check]);
+            break;
+          };
         };
       };
       ++start;
@@ -300,7 +308,7 @@ const writeSupply = () => {
       Browser.msgBox('備品お渡し情報を登録しました。');
     }
   }
-  vcsu.getRangeList(['C3:D10', 'E7:G10', 'D23:D29', 'D41:D47', 'D59:D65', 'D77:D83']).clearContent();
+  vcsu.getRangeList(['C3:D10', 'E7:G10', 'D23:D29', 'D41:D47', 'D59:D65', 'D77:D83', 'B20:D20', 'B38:D38', 'B56:D56', 'B74:D74']).clearContent();
 }
 
 const addMaster = () => {
@@ -538,149 +546,80 @@ const shiftSet_ = (date = null) => {
   })
 }
 
+const diffCheck = () => {
 
-const differenceCheck = () => {
-  const get_time = start_time.getTime();
+  const copy_array = (array) => {
+    return copy_label.map((key, index) => {
+      switch (index) {
+        case indexs[5]: split_a_(address_trim_(array[qindexs[4]]));
+        case indexs[6]: split_b_(address_trim_(array[qindexs[4]]));
+        default: return array[query_label.indexOf(key)]
+      }
+    });
+  };
+
 
   const vc = mainData_('vc');
-  const vcag = vc.getSheetByName('集約');
-  const ag_row = vcag.getLastRow();
-  const vcag_data = vcag.getDataRange().getValues();
-  const vcag_label = vcag_data.filter(values => values.includes('日程')).flat();
-  const trim_vcag_data = vcag_data.filter(values => new Date(values[1]).getTime() >= get_time);
 
-  const testvc = mainData_('vc');
-  const vcpos = testvc.getSheetByName('転記');
-  const vcpos_max_index = vcpos.getRange('H1').getValue();
-  const vcpos_data = vcpos.getDataRange().getValues().map(values => values.filter((value, index) => index < vcpos_max_index));
-  const vcpos_keys = vcpos_data.filter(values => values.includes('日程')).flat();
-  const trim_vcpos_data = vcpos_data.filter(values => new Date(values[1]).getTime() >= get_time);
+  const copy_origin = vc.getSheetByName('転記');
+  const copy_row = copy_origin.getRange(1, 2).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow() - 2;
+  const copy_col = copy_origin.getRange('H1').getValue();
+  const copy_label = copy_origin.getRange(2, 1, 1, copy_col).getValues().flat();
+  const indexs = ['日程', '開始', '終了', '会場\n名称', '通し番号', '住所', '建物'].map(key => copy_label.indexOf(key));
 
-  trim_vcpos_data.forEach((values, index) => {
-    const date_check =
-      (valueDate(values[vcpos_keys.indexOf('日程')]) == valueDate(trim_vcag_data[index][vcag_label.indexOf('日程')]));
-    const venue_check =
-      (values[vcpos_keys.indexOf('会場\n名称')] == trim_vcag_data[index][vcag_label.indexOf('会場\n名称')]);
-    const start_check =
-      (valueDate(values[vcpos_keys.indexOf('開始')], 'H:mm') == valueDate(trim_vcag_data[index][vcag_label.indexOf('開始')], 'H:mm'));
-    if (date_check && venue_check && start_check) {
-      values.forEach((value, num) => {
-        switch (vcpos_keys[num]) {
-          case '開催\n可否': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('開催\n可否')]);
-          case '定員\n(半角)': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('定員\n(半角)')]);
-          case '参加\n予定': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('参加\n予定')]);
-          case '誘導先店舗': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('誘導先店舗')]);
-          case 'SAD在籍状況': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('SAD在籍状況')]);
-          case 'SADサポート有の場合\n(名前+店舗名)': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('SADサポート有の場合\n(名前+店舗名)')]);
-          case '会場運用上\n注意点': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('会場運用上\n注意点')]);
-          case 'カリキュラム\n補足': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('カリキュラム\n補足')]);
-          case '連絡事項': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('連絡事項')]);
-          case '会場\n担当者名': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('会場\n担当者名')]);
-          case '講師': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('講師')]);
-          case '通し番号': values.splice(num, 1, trim_vcag_data[index][vcag_label.indexOf('通し番号')]);
-        }
-      });
-    }
-  });
-  const pos_length = trim_vcpos_data.length;
-  const row = ag_row - pos_length + 1;
-  vcpos.getRange(row, 1, pos_length, vcpos_max_index).setValues(trim_vcpos_data);
-}
+  const copy_data = copy_origin.getRange(3, 1, copy_row, copy_col).getValues()
+    .map(values => values.map((value, index) => {
+      switch (index) {
+        case indexs[0]: return valueDate(value, 'yyyy/MM/dd');
+        case indexs[1]: return valueDate(value, 'H:mm');
+        case indexs[2]: return valueDate(value, 'H:mm');
+        case indexs[4]: return String(value);
+        default: return value;
+      }
+    }));
 
-const sheetUPDATE = () => {
-  const get_time = start_time.getTime();
-  const vc = mainData_('vc');
-  const vcag = vc.getSheetByName('集約')
-  const vcag_lastRow = vc.getLastRow();
+  const query = vc.getSheetByName('集約');
+  const query_row = query.getRange(1, 2).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow() - 2;
+  const query_label = query.getRange(2, 1, query_row, query.getLastColumn()).getValues().flat();
+  const qindexs = ['日程', '開始', '終了', '会場\n名称', '会場\n住所']
+    .map(key => query_label.indexOf(key));
 
-  const testvc = mainData_('vc');
-  const vcpos = testvc.getSheetByName('転記');
-  const vcpos_lastRow = vcpos.getLastRow();
+  const query_data = query.getRange(3, 1, query_row, query.getLastColumn()).getValues()
+    .map(values => values.map((value, index) => {
+      switch (index) {
+        case qindexs[0]: return valueDate(value, 'yyyy/MM/dd');
+        case qindexs[1]: return valueDate(value, 'H:mm');
+        case qindexs[2]: return valueDate(value, 'H:mm');
+        default: return value;
+      }
+    }));
+
+  Logger.log(query_data.length);
+  Logger.log(copy_data.length);
 
 
-  if (vcag_lastRow == vcpos_lastRow) { return; };
+  const write_data = query_data.map(values => copy_array(values));
 
-  const vcag_data = vcag.getDataRange().getValues();
-  const origin_length = vcag_data.length;
-  const vcag_label = vcag_data.filter(values => values.includes('日程')).flat();
-  const vcag_from = vcag_data.filter(values => new Date(values[1]).getTime() >= get_time);
-
-  const vcpos_max_index = vcpos.getRange('H1').getValue();
-  const vcpos_data = vcpos.getDataRange().getValues().map(values => values.filter((value, index) => index < vcpos_max_index));
-  const vcpos_keys = vcpos_data.filter(values => values.includes('日程')).flat()
-    .filter((key, index) => index < vcpos_max_index);
-  const vcpos_index = vcpos_keys.map(key => vcag_label.indexOf(key));
-  const vcpos_from = vcpos_data.filter(values => new Date(values[1]).getTime() >= get_time);
-
-  let ag_length = vcag_from.length;
-  let cp_length = vcpos_from.length;
-
-  vcpos_from.forEach((values, index) => {
-    const date = valueDate(vcag_from[index][vcag_label.indexOf('日程')]);
-    const venue = vcag_from[index][vcag_label.indexOf('会場\n名称')];
-    const start = valueDate(vcag_from[index][vcag_label.indexOf('開始')], 'H:mm');
-    const pos_date = valueDate(values[vcpos_keys.indexOf('日程')]);
-    const pos_venue = values[vcpos_keys.indexOf('会場\n名称')];
-    const pos_start = valueDate(values[vcpos_keys.indexOf('開始')], 'H:mm');
-    const date_check = (date != pos_date);
-    const venue_check = (venue != pos_venue);
-    const start_check = (start != pos_start);
-
-    if (date_check || venue_check || start_check) {
-      const array = vcpos_index.map((key, num) => {
-        switch (num) {
-          case vcpos_keys.indexOf('日程'): return valueDate(vcag_from[index][key]);
-          case vcpos_keys.indexOf('住所'):
-            return split_a_(address_trim_(String(vcag_from[index][vcpos_index[vcpos_keys.indexOf('会場\n住所')]])));
-          case vcpos_keys.indexOf('建物'):
-            return split_b_(address_trim_(String(vcag_from[index][vcpos_index[vcpos_keys.indexOf('会場\n住所')]])));
-          case vcpos_keys.indexOf('開始'): return valueDate(vcag_from[index][key], 'H:mm');
-          case vcpos_keys.indexOf('終了'): return valueDate(vcag_from[index][key], 'H:mm');
-          case vcpos_keys.indexOf('シフト開始'):
-            var time = new Date(vcag_from[index][key]).setMinutes(- 90);
-            return valueDate(time, 'H:mm');
-          case vcpos_keys.indexOf('シフト終了'):
-            var time = new Date(vcag_from[index][key]).setMinutes(+ 60);
-            return valueDate(time, 'H:mm');
-          case vcpos_keys.indexOf('通し番号'): String(vcag_from[index][key]);
-          default: return vcag_from[index][key];
-        }
-      })
-      vcpos_from.splice(index, 0, array);
+  write_data.forEach((values, index) => {
+    const day = values[indexs[0]];
+    const ven = values[indexs[3]];
+    const time = values[indexs[1]];
+    for (let i = 0; i < copy_data.length; i++) {
+      const dcheck = (day == copy_data[i][indexs[0]]);
+      const vcheck = (ven == copy_data[i][indexs[3]]);
+      const tcheck = (time == copy_data[i][indexs[1]]);
+      if (dcheck && vcheck && tcheck) {
+        write_data.splice(index, 1, copy_data[i]);
+        break;
+      }
     }
   });
 
+  Logger.log(write_data.length);
 
-  ag_length = vcag_from.length;
-  cp_length = vcpos_from.length;
+  copy_origin.getRange(3, 1, write_data.length, write_data[0].length).setValues(write_data);
 
-  if (vcpos_from.length != vcag_from.length) {
-    for (let index = cp_length; index < ag_length; index++) {
-      const array = vcpos_index.map((key, num) => {
-        switch (num) {
-          case vcpos_keys.indexOf('日程'): return valueDate(vcag_from[index][key]);
-          case vcpos_keys.indexOf('住所'):
-            return split_a_(address_trim_(String(vcag_from[index][vcpos_index[vcpos_keys.indexOf('会場\n住所')]])));
-          case vcpos_keys.indexOf('建物'):
-            return split_b_(address_trim_(String(vcag_from[index][vcpos_index[vcpos_keys.indexOf('会場\n住所')]])));
-          case vcpos_keys.indexOf('開始'): return valueDate(vcag_from[index][key], 'H:mm');
-          case vcpos_keys.indexOf('終了'): return valueDate(vcag_from[index][key], 'H:mm');
-          case vcpos_keys.indexOf('シフト開始'):
-            var time = new Date(vcag_from[index][key]).setMinutes(- 90);
-            return valueDate(time, 'H:mm');
-          case vcpos_keys.indexOf('シフト終了'):
-            var time = new Date(vcag_from[index][key]).setMinutes(+ 60);
-            return valueDate(time, 'H:mm');
-          case vcpos_keys.indexOf('通し番号'): String(vcag_from[index][key]);
-          default: return vcag_from[index][key];
-        }
-      })
-      vcpos_from.push(array);
-    }
-  }
-
-  vcpos.getRange((origin_length - cp_length) + 1, 1, vcpos_from.length, vcpos_from[0].length).setValues(vcpos_from);
-}
+};
 
 const address_trim_ = (value) => {
   return value
@@ -699,3 +638,15 @@ const split_b_ = (value) => {
   return value.match(/(?<=\s).*$/);
 }
 
+const addUi = () => {
+  SpreadsheetApp.getUi()
+    .createMenu('追加メニュー')
+    .addSeparator()
+    .addItem('LOGCLOCK', 'writeLogClock')
+    .addSeparator()
+    .addItem('会場連絡', 'writeVenCall')
+    .addSeparator()
+    .addItem('備品お渡しリスト', 'writeSupply')
+    .addSeparator()
+    .addItem('翌月分マスタ', 'assaignsheet')
+}
