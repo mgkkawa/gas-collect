@@ -10,45 +10,43 @@ const addMenuExFormFoldar = () => {
 }
 
 const newExform = () => {
-  /*フォルダ作成用スプレッドシートを参照
-    何年何月の経費申請書、フォルダーを作成したいのか
-    スプレッドシートを確認*/
-  const sheetnamelast = ['', '', '(2)', '※領収書のみ'];
-  const cr = mainData_('cr');
-  const crs = cr.getSheetByName('経費申請書フォルダ作成用');
-  const check_Year_Month = crs.getRange(1, 1, 2, 1).getDisplayValues();
-  const year = check_Year_Month.shift();
-  const month = check_Year_Month.shift();
-  const sheetname = `${year}年${month}月`;
-  const foldername = `${year}.${String(month).padStart(2, '0')}`;
-  sheetnamelast.forEach(s => { return Logger.log(sheetname + s); });
-  const names = staffData_(['name']).flat();
-  /*経費申請書原本のスプレッドシートを参照
-    各種成型しコピー、各スタッフフォルダへコピー*/
+  const members = memberData_();
+  const editors = ['川手健人', '山崎達也', '伊佐野美奈'].map(key => members[key]['e-mail']);
+
+  const date = new Date();
+  date.setMonth(date.getMonth() + 1);
+  const year = valueDate(date, 'yyyy年');
+  const month = valueDate(date, 'M月');
+
+  const sheetname = year + month;
+  const foldername = valueDate(date, 'yyyy.MM');
+  const sheetnamelast = ['', '※領収書のみ'];
+  const staff_obj = staffObject_();
+  const names = Object.keys(staff_obj);
+
+
   const ex = mainData_('ex');
   const exs = ex.getSheets();
-  exs.forEach((sheet, index) => {
-    if (index != 1) { sheet.hideSheet(); }
-    else { sheet.setName(sheetname).getRange(1, 2, 1, 2).setValues([[sheetname]]); }
-    if (index >= 1 && index <= 3) { sheet.setName(sheetname + sheetnamelast[index]); }
+  sheetnamelast.forEach((value, index) => {
+    exs[index].setName(sheetname + value);
+    if (index == 0) { exs[index].getRange(1, 2, 1, 2).setValues([[year, month]]) };
   });
-  var origin = DriveApp.getFileById('1D1bUKQviM7mOkZozknLRk2g8_oQ7t6w0EgQc_4l6Vnk');
-  var formatName = origin.getName();
+  const origin = DriveApp.getFileById(properties('origin_exform'));
+  const formatName = origin.getName();
   //スタッフ共有用フォルダを参照
-  var folder = DriveApp.getFolderById('1UT1mgpweki9sixQ3ZCteV1Oh_p49JvYq');
-  var id = folder.createFolder(foldername).getId();
-  var mfolder = DriveApp.getFolderById(id);
-  names.forEach((name, i) => {
-    var sfolder = mfolder.createFolder(String(i + 1).padStart(2, '0') + '.' + name);
-    var fileId = origin.makeCopy(formatName, sfolder).getId();
-    var sheets = SpreadsheetApp.openById(fileId).addEditors(['k.kawate@mg-k.co.jp', 't.yamazaki@mg-k.co.jp', 'misano@mg-k.co.jp']).getSheets();
+  const folder = DriveApp.getFolderById(properties('staff_exform_folder'));
+  const id = folder.createFolder(foldername).getId();
+  const mfolder = DriveApp.getFolderById(id);
+  names.forEach((name, index) => {
+    const sfolder = mfolder.createFolder(String(index + 1).padStart(2, '0') + '.' + name);
+    const fileId = origin.makeCopy(formatName, sfolder).getId();
+    const sheets = SpreadsheetApp.openById(fileId).addEditors(editors).getSheets();
     sheets.forEach((sheet, x) => {
-      if (x != 1) {
+      if (x != 0) {
         sheet.hideSheet();
+        if (x == 1) { sheet.getRange('J6:J45').insertCheckboxes() };
       }
-      else {
-        sheet.getRange(3, 7).setValue(name);
-      }
+      else { sheet.getRange(3, 7).setValue(name); }
     });
   });
 }
