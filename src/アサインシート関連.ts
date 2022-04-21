@@ -25,9 +25,10 @@ const assaignsheet = () => {
   });
 
   const dayCol = NumToA1(sheet_label.indexOf('日程') + 1);
+  const venCol = NumToA1(sheet_label.indexOf('会場\n名称') + 1);
   const lastCol = NumToA1(sheet_label.length);
   const initial = `'${sheetname}'!A${ind}:${lastCol}`;
-  const func = `QUERY(${initial},"select ${Col_list} where ${dayCol} is not null")`;
+  const func = `QUERY(${initial},"select ${Col_list} where ${dayCol} <>'' and ${venCol} <>''")`;
 
   const base_func = asag.getRange('F1').getValue();
   Logger.log(base_func);

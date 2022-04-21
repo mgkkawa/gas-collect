@@ -373,24 +373,6 @@ const toDay_ = () => {
   vcag.getRange(1, 1, 1, 3).setValues([[setFullYear, setMonth, setDate]]);
 }
 
-const addressUPDATE_ = (sheet) => {
-  if (!sheet) { sheet = mainData_('vc').getSheetByName('集約'); }
-  const sheet_dat = sheet.getDataRange().getValues();
-  let label = sheet_dat.filter(values => values.includes('会場\n住所')).flat();
-  if (!label) { label = sheet.getRange(2, 1, 1, sheet.getLastColumn()).getValues().flat(); }
-  var array = sheet.getRange(3, label.indexOf('会場\n住所') + 1, sheet.getRange(1, 2).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow()).getDisplayValues().flat().map(
-    (value) => {
-      if (value.match(/^.*(?<=[-][1-9]??)[0-9](?![\d])/) != null) {
-        value = value.replace(/^[!].*[!][ ]?/, '');
-        return value.match(/^.*(?<=[-][1-9]??)[0-9](?![\d])/);
-      } else {
-        return [value.replace(/^[!].*[!][ ]?/, '')];
-      }
-    }
-  );
-  sheet.getRange(3, label.indexOf('住所') + 1, array.length).setValues(array);
-}
-
 const suiteCase_ = () => {
   const sc = mainData_('sc');
   const scs = sc.getSheetByName(valueDate(start_time, 'yyyy.MM'));
@@ -594,10 +576,6 @@ const diffCheck_ = () => {
       }
     }));
 
-  Logger.log(query_data.length);
-  Logger.log(copy_data.length);
-
-
   const write_data = query_data.map(values => copy_array(values));
 
   write_data.forEach((values, index) => {
@@ -615,28 +593,9 @@ const diffCheck_ = () => {
     }
   });
 
-  Logger.log(write_data.length);
-
   copy_origin.getRange(3, 1, write_data.length, write_data[0].length).setValues(write_data);
 
 };
-
-const address_trim_ = (value) => {
-  return value
-    .replace(/[^\x01-\x7E\xA1-\xDF]/g, str => zen2han_(str)).replace(/[\n\r]/g, '')
-    .replace(/(?<=\d)[ーｰ－−-]|(丁目(?=\d)|番地の?(?=\d)|(?<=\d)番(?!([地 　]|$)))/g, '-')
-    .replace(/[一二三四五六七八九十〇](?=-)|(?<=-)[一二三四五六七八九十〇]/g, str => kanji2num_(str))
-    .replace(/[　]|(?<=\d)[\(（]|(番地|号|番(?!地))(?=[\(（])|(番地|番|号)([ 　]|$)/g, ' ')
-    .replace(/!.*! |[\(\)（）]|[\s]{2,}|(?<!(\d|丁目))\s/g, '');
-}
-
-const split_a_ = (value) => {
-  return value.match(/^.*\d(丁目)?(?=(\s|$))/);
-}
-
-const split_b_ = (value) => {
-  return value.match(/(?<=\s).*$/);
-}
 
 const addUi = () => {
   SpreadsheetApp.getUi()

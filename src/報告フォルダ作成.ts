@@ -36,7 +36,12 @@ const folderCreate_ = () => {
     try { day_folder.getFoldersByName(values[0]).next() }
     catch { day_folder.createFolder(values[0]) };
     const ven_folder = day_folder.getFoldersByName(values[0]).next();
-    if (values[values.length - 1] == 'エムジー') { ven_folder.createFolder('03.会場報告用') };
+    if (values[values.length - 1] == 'エムジー') {
+      const report_folder = ven_folder.createFolder('03.会場報告用');
+      report_folder.createFolder('登壇風景');
+      report_folder.createFolder('来店予約書き込みシート');
+      report_folder.createFolder('座席表');
+    };
     const assign_folder = ven_folder.createFolder('01.集合写真報告');
     const pic_folder = ven_folder.createFolder('02.アピアランス写真報告');
     Logger.log(values);

@@ -28,6 +28,7 @@ const sendCondition_ = (event) => {
 }
 
 const workercheck_ = (work: string = null) => {
+  const staff_obj = staffObject_();
   const tm = mainData_('tm');
   const tms = tm.getSheetByName('Check');
   const tmsd = tms.getDataRange().getValues()
@@ -45,9 +46,8 @@ const workercheck_ = (work: string = null) => {
   body += '検温結果報告フォーム\n';
   body += 'https://docs.google.com/forms/d/e/1FAIpQLScMWgzo6FBP0DOtW5i45CzZayUs1PUvRAq7PWsubD9z8w_lfA/viewform\n';
   const names = trim_tmsd.map(values => values = values[0]).flat();
-  const mails = slimstaffData_(names, ['name', 'e-mail', 'スタッフ名']);
-  mails.forEach(values => {
-    GmailApp.sendEmail(values[1], sub, body, { from: accountId_('options') });
+  names.map(key => staff_obj[key]['メールアドレス']).forEach(value => {
+    GmailApp.sendEmail(value, sub, body, { from: accountId_('options') });
   });
 }
 

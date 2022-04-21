@@ -25,7 +25,7 @@ function doGet() {
   start_time.setHours(0);
   triggerset('zeroOclock', start_time);
 
-}
+};
 
 const triggerset = (t: string, time: Date) => {
   const triggers = ScriptApp.getProjectTriggers();
@@ -37,64 +37,68 @@ const triggerset = (t: string, time: Date) => {
   ScriptApp.newTrigger(t).timeBased().at(time).create();
 };
 
+const properties = (str) => {
+  return PropertiesService.getScriptProperties().getProperty(str);
+}
+
 const mainData_ = (s) => {
   switch (s) {
-    case 'vc': return SpreadsheetApp.openById('12px9xnwlW5W4lkcYkT3ifQY_WbroAz4Hc-MFp6H0-GM'); //[移行先]
-    case 'as': return SpreadsheetApp.openById('1m93CFX1uG67bO6c5xbSGoV5Bm0xNbfO0QAkE7nQqO5c'); //【ソフトバンク様】共有用アサインシート
-    case 'sh': return SpreadsheetApp.openById('14KJJ0cDL_iwIyYOFpHoutgBa1IhFz-C0bGLrru-V6Vw'); //SBスマホ教室シフト ver.2
-    case 'nh': return SpreadsheetApp.openById('16Sauir48G8L5nYlZn6PXRA_4dYbrg-K_oM5A2yN7828'); //翌月希望休申請フォーム
-    case 'ss': return SpreadsheetApp.openById('1QUgp80m71kV3Z-tZF5kd66MZPgBkaAJzNUzEkvumKoI'); //編集用
-    case 'mg': return SpreadsheetApp.openById('1Li-BWteJg-Nn4nWjv3Ha1XXl_2gz-IGLZcpZMV8WiJo'); //MGシフト
-    case 'st': return SpreadsheetApp.openById('16r_yPRELNL57_kq03CE4OsIkZS6WiEmAsUxXqkvPGlU'); //宿泊申請用フォーム(回答)
-    case 'wr': return SpreadsheetApp.openById('1vsEs4HxI9tyQaduT-XLxUfKZQcbZHdGGaPlklYuu524'); //勤務実績表
-    case 'cr': return SpreadsheetApp.openById('1xaqLyOfVIZDiy7KuYP3_aOjjxk7Pc8JtFdvzlCA_ZdQ'); //フォルダ作成用スプレッド
-    case 'ex': return SpreadsheetApp.openById('1D1bUKQviM7mOkZozknLRk2g8_oQ7t6w0EgQc_4l6Vnk'); //経費申請書
-    case 'sc': return SpreadsheetApp.openById('1l-2c0yjfQTTcfnuhvOnVkf_aU6NuEXMXveG32nxs_w8'); //新スーツケース管理表
-    case 'tm': return SpreadsheetApp.openById('1ZjRt8x-PZ8QUIukTATts1v3n-89JH6R9Hz3wnA6DKC4'); //検温結果報告フォーム(回答)
-
+    case 'vc': return SpreadsheetApp.openById(properties('main_vencall')); //[移行先]
+    case 'as': return SpreadsheetApp.openById(properties('main_assign')); //【ソフトバンク様】共有用アサインシート
+    case 'sh': return SpreadsheetApp.openById(properties('main_shift')); //SBスマホ教室シフト ver.2
+    case 'nh': return SpreadsheetApp.openById(properties('next_holiday')); //翌月希望休申請フォーム
+    case 'ss': return SpreadsheetApp.openById(properties('detail_shift')); //編集用
+    case 'mg': return SpreadsheetApp.openById(properties('mgshift')); //MGシフト
+    case 'st': return SpreadsheetApp.openById(properties('stay_request')); //宿泊申請用フォーム(回答)
+    case 'wr': return SpreadsheetApp.openById(properties('work_record')); //勤務実績表
+    case 'cr': return SpreadsheetApp.openById(properties('folder_create')); //フォルダ作成用スプレッド
+    case 'ex': return SpreadsheetApp.openById(properties('origin_exform')); //経費申請書
+    case 'sc': return SpreadsheetApp.openById(properties('suit_case')); //新スーツケース管理表
+    case 'tm': return SpreadsheetApp.openById(properties('temperature')); //検温結果報告フォーム(回答)
+    case 'ef': return SpreadsheetApp.openById(properties('calc_request')); //経費申請希望フォーム（回答）
+    case 'ec': return SpreadsheetApp.openById(properties('exform_calc')); //経費集計用
   }
-}
+};
 
 const mainForm_ = (s) => {
   switch (s) {
     case 'together': return FormApp.openById('13pB1ZKTIiMrS1FKa5hHGVIa8sgd4nLXYZfRDRwdzrtQ');
-  }
-}
+  };
+};
 
 const testData_ = (s) => {
   switch (s) {
-    case 'vc': return SpreadsheetApp.openById('1vj_jYh177A1LxSZ2xxLBNKnXxV-gGGfanrJpjqR-A8g');//[開発用]新会場連絡シート
-    case 'sh': return SpreadsheetApp.openById('1WWgrfYK06KbQXaLgHQGSTHf4DMmZOFixElsTlqnbHHs');//[開発用]SBスマホ教室シフト ver.2
-    case 'as': return SpreadsheetApp.openById('1W-1ktAbv71eBG8yoK1pdBKVBZdIcbCFyUhFBdyIxcKc');//[開発用]アサインシート
+    case 'vc': return SpreadsheetApp.openById(properties('test_vencall'));//[開発用]新会場連絡シート
+    case 'sh': return SpreadsheetApp.openById(properties('test_shift'));//[開発用]SBスマホ教室シフト ver.2
+    case 'as': return SpreadsheetApp.openById(properties('test_assign'));//[開発用]アサインシート
     //case 'nh': return;
   }
-}
+};
 
 const setOptions_ = () => {
-  return {
-    "apiId": "jp2ZfyeuwcreZ",
-    "consumerKey": "WCuVQsBn1LN1IlfD5_nx",
-    "serverId": "0258d47c34e54a6db60f0374120c71bd",
-    "privateKey": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC9D+Sp6ANTG8T9sbdhJFsipcwBa7HUEQZfj2t2XOtkiQhDOF9h7oC3w+wditc0bnOxUbgFy2mEaWZnhQ7wjgUY2elvrE/zSk3Dg+czKe+wYzvCQkNzBoAmrG/0qssQOv31ainTJgsEuvYuOnaOaf/0sQUWFbDBFK51bSSX0HWsZrPoyKQMu5aOBdxeO/TN/4Ks1c2115V/DR4ijsAQPXy9+0ajQHA/HpqJEXiRM1ZQbxZb8dXI1Z589vLHAWl6RheBHfsbCHKvYB/dRbEaul3N1M6+S8B7YG8WbUxZVwYtORbvRZ5pOwj2dGMUmYShNal+bylxTYADD9TXAfXiFWpZAgMBAAECggEAYEWjjtFSQBO37+d7FcBJmA8NHvwUBYTV1ftWIWOXig4tYu1lxJyKdwkRRsnYZB6KUxTlvC2kgYSaXMRoox3ugoUUVYVNAPopNxIHvQnxv8QIPhc3+W6p+wd7yv7dgFpJz5pLyfVpTvNVQJ0MmeBoMdWiXWiWJPu/CpSVOakxAqQ4uCC0P6mU+8l2jJHCVJlxG655Hc6efW+Tttj3/HgjrZt41OZaKDcpFbdNthKCdIqdFJUjtxnS7/BhRXmTDOdDrz8tDZ/g0jI1V2B+IJxpS/S2bhQ7xpkUMHl8gndDt4PUwPiazUvh1rVQ51a2V/I+XSH0MW9rOQt08NDnspNQAQKBgQDwDoheeU7eHGMU95o9XTM9O2dWZO1kjmLjCV1AmxYA/SigAqK3eajirqmHC2RQTR9oEz0+nVRB3MP2cdwviq8C3EEK9Uk5qo5hIiptEdB/C5vBR4c4pjKMLhmmnUxJOA7wTLuSDs7S/gV6TJnNjjayl63Ho9fE8oAaN8sspfwx2QKBgQDJnlgcVU4vPlARByO0QxR1ZOpdFClmFcb5K3IBZSLReNgAf8pAh7ZzydVeUayXbwFcm7hsfHBgsXrO/1xU25jLYYzZdy0dkjCYFklXml5s8okPKS1VlKS0p3pNXSMF/vTZnGRWv5GPdPzbvD/suIioicd6Yq5efH0WnJd3/IcsgQKBgFFYm11oPhGGDQ1N2jZxHqvhNWNRUCCDH39P7Qm3g/1RzDJssjb6QwCNr2TTt2p+t+XMnzRYm/S1mrIoYzS5ChUuDdxowieIZDcGHNpY7w4eIOmeE3Re3UIjXQ3Yv8EP/f/wAJ+95NgavEB1NKkzR9W9EGZWXweeJUq9HVxD4vIBAoGAaf9khWjX1QCmqX0eaUwG+n0Wtd6+sRvr4t3TbyZTutsUfJayp2ByLMfE9HRuD6NdjOmVePunPT6xuRgJ29cjqnFb0ozUXEKaZ6r33iWbVR3hruXQHrkqKowOQZQgsKtM4QdWvUCz7z7rHT8IQJT3y9u70v0EfUpnnTawb3WFP4ECgYEA4/uIzOXreoJOiMPR0KiZQxciXknd+U8EEDBhDs4nognqzxpAt4JdeIHVG++vrVBYvA0y9Y5Paggn3nHEBbx3Rj23U/cbpKInbLuDexzC8zr+G6Z/jr1R0O/oppeuTe3fMTuKg6sFbHnMuNpAuXGQCP603gW1axmQKboSYTzJ4wc=\n-----END PRIVATE KEY-----",
-    "botNo": 1416739
-  };
-}
+  return JSON.parse(properties('setOption'));
+};
 
 const accountId_ = (name) => {
+  const member = JSON.parse(properties('member_obj'));
+  return member[name]['line'];
   switch (name) {
-    case '大山夏美': return 'mg.06210@mgcorporation';
-    case '山崎達也': return 'mg.24637@mgcorporation';
-    case '富樫一世': return 'mg.95657@mgcorporation';
-    case 'room': return '88547072';
-    case 'domainId': return '12013748';
-    case 'options': return 'info-dsg@mg-k.co.jp';
-    default: return 'k.kawate@mgcorporation';
+    case '大山夏美': return properties('line_oyama');
+    case '山崎達也': return properties('line_yamazaki');
+    case '富樫一世': return properties('line_togashi');
+    case 'room': return properties('dsg_room');
+    case 'dsg':
+      const room = JSON.parse(properties('member_obj'))
+      return room[name];
+    case 'domainId': return properties('domainId');
+    case 'options': return properties('options_mail');
+    default: return properties('line_kawate');
   }
-}
+};
 
 const callbackURL_ = () => {
-  return "https://script.google.com/macros/s/AKfycbxkGkqNEqqA9QYvySiS4TUEpjd7poF7DLUYDL5G6ghZLgtOkmc/exec";
-}
+  return properties('callbackURL');
+};
 
 const addressCheck_ = () => {
   var sheet = SpreadsheetApp.openById('1m93CFX1uG67bO6c5xbSGoV5Bm0xNbfO0QAkE7nQqO5c').getSheetByName('202204');
@@ -114,7 +118,7 @@ const addressCheck_ = () => {
   addDat = addDat.map(value => value.replace(/(?<=[0-9])(番地|[番号])(?!地|[0-9])[　| ]?|[　]|\n|\r\n|\r/g, ' '));
   var setAdd = addDat.map(address => [address.replace(/  /g, ' ')]);
   sheet.getRange(row, addCol + 1, setAdd.length).setValues(setAdd);
-}
+};
 
 const NumToA1 = (num) => {
   const RADIX = 26;
@@ -127,7 +131,7 @@ const NumToA1 = (num) => {
     n = Math.floor(n / RADIX);
   }
   return s;
-}
+};
 
 const datObject_ = (array) => {
   //受け取った配列を連想配列化して返す。
@@ -139,12 +143,12 @@ const datObject_ = (array) => {
     return hash;
   })
   return obj;
-}
+};
 
 const objectCut_ = (obj, keys) => {
   //受け取った連想配列を受け取ったキーで取り出して二次元配列として返す。
   return obj.map(array => keys.map(key => array[key]));
-}
+};
 
 const convertDate_ = (values, str) => {
   if (!str) { str = 'yyyy/MM/dd' };
@@ -162,7 +166,7 @@ const convertDate_ = (values, str) => {
       });
     values[i] = newValues;
   }
-}
+};
 
 const convertObj_ = (values) => {
   var reg = /^....\/..\/..$/;
@@ -179,14 +183,14 @@ const convertObj_ = (values) => {
     values[i] = newValues;
   }
   return values;
-}
+};
 
 const month_ = (value) => {
   switch (true) {
     case value >= 5: return value.match(/(?<=\/)[0-9][1-9](?=\/)/);
     default: return value.slice(0, 2);
   }
-}
+};
 
 const valueDate = (value, str = 'MM/dd') => {
   if (Object.prototype.toString.call(value) == "[object Date]") {
@@ -196,24 +200,28 @@ const valueDate = (value, str = 'MM/dd') => {
   }
 };
 
-const staffData_ = (keys = ['スタッフ名', '銀行名', '支店名', '口座番号']) => {
+const staffData_ = (name, keys = ['スタッフ名', '銀行名', '支店名', '口座番号']) => {
   const data = staffObject_();
-  const array = data.map(staff => { return keys.map(key => { return staff[key]; }); });
+  const array = keys.map(key => data[name][key]);
   return array;
 };
 
 const staffObject_ = () => {
-  const database = SpreadsheetApp.openById('14KJJ0cDL_iwIyYOFpHoutgBa1IhFz-C0bGLrru-V6Vw').getSheetByName('データベース').getDataRange().getDisplayValues();
-  const keys = database[0];
-  database.shift();
-  const array = database.map(values => {
-    let hash = {};
-    values.map((value, index) => {
-      hash[keys[index]] = value;
-    });
-    return hash;
-  });
-  return array;
+  return JSON.parse(properties('STAFF_OBJ'));
+  // object処理の参考に残す。
+  // const database = mainData_('sh').getSheetByName('データベース').getDataRange().getDisplayValues()
+  //   .filter((values, index) => index <= 50);
+  // const keys = database.splice(0, 1).flat().filter((key, index) => index > 0);
+  // const names = database.flatMap(values => values.splice(0, 1));
+  // let obj = {};
+  // names.map((staff, row) => {
+  //   let obj2 = {};
+  //   database[row].map((value, index) => {
+  //     obj2[keys[index]] = value;
+  //   });
+  //   obj[staff] = obj2;
+  // });
+  // return obj;
 };
 
 const staffEmailAddress_ = (name) => {
@@ -225,7 +233,7 @@ const staffEmailAddress_ = (name) => {
     }
   }
   return eMail;
-}
+};
 
 const zenkana2Hankana = (str) => {
   const kanaMap = {
@@ -256,7 +264,7 @@ const zenkana2Hankana = (str) => {
     })
     .replace(/゛/g, 'ﾞ')
     .replace(/゜/g, 'ﾟ');
-}
+};
 
 const slimstaffData_ = (staffs, keys) => {
   const database = mainData_('sh')
@@ -272,10 +280,11 @@ const slimstaffData_ = (staffs, keys) => {
 const allStaffData = () => {
   return mainData_('sh').getSheetByName('データベース')
     .getDataRange().getValues();
-}
+};
 
 
-const memberData = () => {
+const memberData_ = () => {
+  return JSON.parse(properties('member_obj'));
   return mainData_('sh').getSheetByName('MGデータベース')
     .getDataRange().getDisplayValues();
   // const keys = database[0];
@@ -288,7 +297,7 @@ const memberData = () => {
   //   return obj;
   // })
   // return object;
-}
+};
 
 const getName_ = () => {
   const database = mainData_('sh').getSheetByName('MGデータベース')
@@ -300,7 +309,7 @@ const getName_ = () => {
   const name = database.filter(values => values.includes(account))
     .flat()[label.indexOf('name')];
   return name;
-}
+};
 
 const kanji2num_ = (str) => { // 漢数字を半角数字に
   var reg;
@@ -311,10 +320,45 @@ const kanji2num_ = (str) => { // 漢数字を半角数字に
     str = str.replace(reg, num[i]);
   }
   return str;
-}
+};
 
 const zen2han_ = (str) => {
   return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => {
     return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
   });
-}
+};
+
+const address_trim_ = (value) => {
+  return value
+    .replace(/[^\x01-\x7E\xA1-\xDF]/g, str => zen2han_(str)).replace(/[\n\r]/g, '')
+    .replace(/(?<=\d)[ーｰ－−-]|(丁目(?=\d)|番地の?(?=\d)|(?<=\d)番(?!([地 　]|$)))/g, '-')
+    .replace(/[一二三四五六七八九十〇](?=-)|(?<=-)[一二三四五六七八九十〇]/g, str => kanji2num_(str))
+    .replace(/[　]|(?<=\d)[\(（]|(番地|号|番(?!地))(?=[\(（])|(番地|番|号)([ 　]|$)/g, ' ')
+    .replace(/!.*! |[\(\)（）]|[\s]{2,}|(?<!(\d|丁目))\s/g, '');
+};
+
+const split_a_ = (value) => {
+  return value.match(/^.*\d(丁目)?(?=(\s|$))/);
+};
+
+const split_b_ = (value) => {
+  return value.match(/(?<=\s).*$/);
+};
+
+const addressUPDATE_ = (sheet) => {
+  if (!sheet) { sheet = mainData_('vc').getSheetByName('集約'); }
+  const sheet_dat = sheet.getDataRange().getValues();
+  let label = sheet_dat.filter(values => values.includes('会場\n住所')).flat();
+  if (!label) { label = sheet.getRange(2, 1, 1, sheet.getLastColumn()).getValues().flat(); }
+  var array = sheet.getRange(3, label.indexOf('会場\n住所') + 1, sheet.getRange(1, 2).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow()).getDisplayValues().flat().map(
+    (value) => {
+      if (value.match(/^.*(?<=[-][1-9]??)[0-9](?![\d])/) != null) {
+        value = value.replace(/^[!].*[!][ ]?/, '');
+        return value.match(/^.*(?<=[-][1-9]??)[0-9](?![\d])/);
+      } else {
+        return [value.replace(/^[!].*[!][ ]?/, '')];
+      }
+    }
+  );
+  sheet.getRange(3, label.indexOf('住所') + 1, array.length).setValues(array);
+};
