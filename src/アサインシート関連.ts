@@ -1,4 +1,20 @@
+const assignObject = () => {
+  const date = new Date();
+  const as = mainData_('as');
+  const as_sheet = as.getSheetByName(valueDate(date, 'yyyyMM'));
+  const as_data = as_sheet.getDataRange().getValues();
+  let ind = 0;
+  const as_label = as_data.filter((values, index) => {
+    if (values.includes('日程')) {
+      ind = index + 2;
+      return true;
+    };
+  }).flat();
 
+  const obj = {};
+
+
+}
 const assaignsheet = () => {
 
   const as = mainData_('as');

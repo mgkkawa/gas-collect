@@ -57,6 +57,7 @@ const mainData_ = (s) => {
     case 'tm': return SpreadsheetApp.openById(properties('temperature')); //検温結果報告フォーム(回答)
     case 'ef': return SpreadsheetApp.openById(properties('calc_request')); //経費申請希望フォーム（回答）
     case 'ec': return SpreadsheetApp.openById(properties('exform_calc')); //経費集計用
+    case 'db': return SpreadsheetApp.openById(properties('shift_db')); //ObjectDB
   }
 };
 

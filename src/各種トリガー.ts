@@ -3,7 +3,6 @@
 const zeroOclock = () => {
   try {
     toDay_();
-    suiteCase_();
     writeForm_();
     diffCheck_();
     folderCreate_();
