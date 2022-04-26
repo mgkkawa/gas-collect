@@ -1,101 +1,5 @@
-const shiftObjectSet = (date = new Date()) => {
-  const yyyy = valueDate(date, 'yyyy');
-  const MM = valueDate(date, 'MM');
-  const shift = shiftObjectCheck();
-  const staff_obj = staffObject_();
-  const staffs = Object.keys(staff_obj);
-  const as = mainData_('as');
-  const as_sheet = as.getSheetByName(valueDate(date, 'yyyyMM'));
-  const as_data = as_sheet.getDataRange().getValues();
-  const as_label = as_data.filter((values, index) => values.includes('日程')).flat();
-  const as_days = as_data.flatMap(values => values[as_label.indexOf('日程')])
-    .map(value => valueDate(value, 'dd'));
-  const trim_days = as_days.filter((value, index, array) => String(value).match(/[\d]/) && array.indexOf(value) == index);
-  trim_days.forEach(dd => {
-    staffs.forEach(staff => {
-      let count = 1;
-      const work = shift[MM][dd][staff];
-      if (work['judge'] == '出勤') {
-        const info = {};
-        for (let i = as_days.indexOf(dd); i <= as_days.lastIndexOf(dd); i++) {
-          if (as_data[i].includes(staff)) {
-            work['venue'] = as_data[i][as_label.indexOf('会場\n名称')];
-            work['set_value'] = as_data[i][as_label.indexOf('通し番号')];
-            const time = {};
-            const start = new Date(as_data[i][as_label.indexOf('開始')]);
-            const end = new Date(as_data[i][as_label.indexOf('終了')]);
-            const flag_check = (as_data[i][as_label.indexOf('講師')] == 'エムジー');
-            if (flag_check) {
-              const main_check = (as_data[i][as_label.indexOf('メイン\n講師')] == staff);
-              if (main_check) { work['flag'] = 'メイン'; }
-              else { work['flag'] = 'サポート'; }
-              time['meeting'] = shiftMainStart(start);
-            } else {
-              work['flag'] = 'SB同行';
-              time['meeting'] = shiftSupStart(start);
-            }
-            time['start'] = valueDate(start, 'H:mm');
-            time['end'] = valueDate(end, 'H:mm');
-            time['leave'] = shiftEnd(end);
-            info[String(count).padStart(2, '0')] = time;
-            work['info'] = info;
-            ++count;
-          }
-        }
-      }
-    })
-  });
-  const database = mainData_('db').getSheetByName('DB');
-  let set_obj = JSON.stringify(shift);
-  const set_strings = new Array(Math.ceil(set_obj.length / 50000));
-  if (set_strings.length > 1) {
-    for (let l = 0; l < set_strings.length; l++) {
-      set_strings.splice(l, 1, set_obj.slice(l * 50000, (l + 1) * 50000));
-    }
-  } else {
-    set_strings[set_strings.length - 1] = set_obj;
-  }
-  database.getRange(database.getLastRow() + 1, 1, 1, set_strings.length + 2)
-    .setValues([[yyyy, MM].concat(set_strings)]);
-  return;
-};
-const shiftMainStart = (time) => {
-  time = new Date(time);
-  time.setMinutes(time.getMinutes() - 90);
-  return valueDate(time, 'H:mm');
-}
-const shiftSupStart = (time) => {
-  time = new Date(time);
-  time.setMinutes(time.getMinutes() - 60);
-  return valueDate(time, 'H:mm');
-}
-const shiftEnd = (time) => {
-  time = new Date(time);
-  time.setMinutes(time.getMinutes() + 60);
-  return valueDate(time, 'H:mm');
-}
-const timesousa = (time, minutes) => {
-  const type = Object.prototype.toString.call(time) == '[object Date]';
-  if (type) {
-    time = new Date(time);
-    return time.setMinutes(time.getMinutes() + minutes);
-  } else {
-    try { new Date(time) }
-    catch {
-      if (String(time).match(/^[\d].:[\d].$/)) {
-        const now = new Date();
-        now.setHours(time.match(/^[\d]./), time.match(/[\d].$/));
-        now.setMinutes(now.getMinutes() + minutes);
-        return now;
-      }
-    }
-    const now = new Date(time);
-    now.setMinutes(now.getMinutes() + minutes);
-    return now;
-  }
-}
-
-
+// ----------------------------------------------------------------------------------------------
+// shiftObjectCreate()→shiftObjectAddValue()→shiftObjectAddInfo()
 // 翌月希望休申請フォームをオブジェクト化
 // 希望休や有休、リフレの取得と出勤可否フラグの設定。
 const shiftObjectCreate = (date = new Date()) => {
@@ -179,19 +83,171 @@ const shiftObjectCreate = (date = new Date()) => {
   }
   return;
 };
+// 最新のシフトオブジェクトに対して
+// ['MTG','当欠','病欠','研修']の情報を追加
+const shiftObjectAddValue = (date = new Date()) => {
+  const shift = shiftObjectCheck(date);
+
+  const nh = mainData_('nh');
+  const nh_sheet = nh.getSheetByName(valueDate(date, 'yyyy.MM'));
+  const nh_label = nh_sheet.getRange(1, 1, 1, nh_sheet.getLastColumn()).getValues().flat();
+  const name_ind = nh_label.indexOf('氏名');
+  const nh_data = nh_sheet.getDataRange().getValues().filter(values => values[name_ind] != '氏名' && values[name_ind] != '')
+    .map(values => ['氏名', 'MTG', '病欠', '当欠', '研修'].map(key => values[nh_label.indexOf(key)]));
+
+  nh_data.forEach(values => {
+    const staff = values[0];
+    const mtg = values[1].replace(/日/g, '').padStart(2, '0');
+    const sick = JSON.parse(`[${values[2].replace(/日/g, '')}]`).filter(Boolean);
+    const absent = JSON.parse(`[${values[3].replace(/日/g, '')}]`).filter(Boolean);
+    const training = JSON.parse(`[${values[4].replace(/日/g, '')}]`).filter(Boolean);
+
+    if (mtg.length != 0) {
+      const check = shift[mtg][staff]['FLAG']
+      if (check) {
+        shift[mtg][staff]['FLAG'] = false;
+        shift[mtg][staff]['SET'] = 'M';
+      } else {
+        try { Browser.msgBox(`MTGチェック${staff}さんの${mtg}日シフトは\n"${shift[mtg][staff]['SET']}"です`) }
+        catch { Logger.log(`MTGチェック${staff}さんの${mtg}日シフトは\n"${shift[mtg][staff]['SET']}"です`) };
+      }
+    }
+    if (sick.length > 0) {
+      sick.forEach(d => {
+        const dd = String(d).padStart(2, '0');
+        const check = shift[dd][staff]['FLAG'];
+        if (check) {
+          shift[dd][staff]['FLAG'] = false;
+          shift[dd][staff]['SET'] = '病欠';
+        } else {
+          try { Browser.msgBox(`病欠チェック${staff}さんの${dd}日シフトは\n"${shift[dd][staff]['SET']}"です`) }
+          catch { Logger.log(`病欠チェック${staff}さんの${dd}日シフトは\n"${shift[dd][staff]['SET']}"です`) };
+        }
+      });
+    };
+    if (absent.length > 0) {
+      absent.forEach(d => {
+        const dd = String(d).padStart(2, '0');
+        const check = shift[dd][staff]['FLAG'];
+        if (check) {
+          shift[dd][staff]['FLAG'] = false;
+          shift[dd][staff]['SET'] = '当欠';
+        } else {
+          try { Browser.msgBox(`当欠チェック${staff}さんの${dd}日シフトは\n"${shift[dd][staff]['SET']}"です`) }
+          catch { Logger.log(`当欠チェック${staff}さんの${dd}日シフトは\n"${shift[dd][staff]['SET']}"です`) };
+        }
+      });
+    };
+    if (training.length > 0) {
+      training.forEach(d => {
+        const dd = String(d).padStart(2, '0');
+        const check = shift[dd][staff]['FLAG'];
+        if (check) {
+          shift[dd][staff]['SET'] = '研';
+        } else {
+          try { Browser.msgBox(`研修チェック${staff}さんの${dd}日シフトは\n"${shift[dd][staff]['SET']}"です`) }
+          catch { Logger.log(`研修チェック${staff}さんの${dd}日シフトは\n"${shift[dd][staff]['SET']}"です`) };
+        }
+      });
+    };
+  });
+  shiftObjectUpdate(shift, date);
+};
+const shiftObjectAddInfo = (obj = shiftObjectCheck(), date = new Date()) => {
+  const yyyy = date.getFullYear();
+  const MM = date.getMonth() + 1;
+  const as = mainData_('as').getSheetByName(yyyy + String(MM).padStart(2, '0'));
+  const origin = as.getDataRange().getValues();
+  const as_label = origin.filter(values => values.includes('日程')).flat();
+  const check = ['日程', '開催\n可否'].map(key => as_label.indexOf(key));
+  const times = ['開始', '終了'].map(key => as_label.indexOf(key));
+  const keys = ['会場\n名称', '集合', '開始', '終了', '解散', '通し番号', 'コース', '地域']
+  const indexs = keys.map(key => {
+    if (key == '集合' || key == '解散') { return key }
+    else { return as_label.indexOf(key) }
+  });
+  const keys_obj =
+  {
+    '会場\n名称': 'VENUE',
+    '集合': 'MEETING',
+    '開始': 'START',
+    '終了': 'FINISH',
+    '解散': 'LEAVE',
+    '通し番号': 'SET',
+    'コース': 'CORSE',
+    '地域': 'AREA'
+  }
+  const as_data = origin.filter((values) =>
+    Object.prototype.toString.call(values[check[0]]) == '[object Date]' &&
+    values[check[1]] != '中止' && values[indexs[0]] != '')
+    .map(values => values.map((value, index) => {
+      switch (index) {
+        case check[0]: return valueDate(value, 'dd');
+        default: return value;
+      }
+    }));
+  const days = as_data.flatMap(values => values[check[0]]);
+  const trim_days = days.filter((value, index, array) => array.indexOf(value) == index);
+  const staff_obj = staffObject_();
+  const staffs = Object.keys(staff_obj);
+  trim_days.forEach(dd => {
+    for (let staff of staffs) {
+      if (obj[dd][staff]['FLAG']) {
+        const set = String(obj[dd][staff]['SET']).includes('サ');
+        const dd_map = as_data.filter((values, index) =>
+          index >= days.indexOf(dd) && index <= days.lastIndexOf(dd) && values.includes(staff)
+        );
+        let time = [];
+        switch (dd_map.length) {
+          case 0: continue;
+          case 1:
+            time = dd_map.flat().filter((value, index) => index == times[0] || index == times[1]);
+            break;
+          default:
+            time = dd_map.flatMap(values => values.filter((value, index) => index == times[0] || index == times[1]));
+        }
+        time.sort((a, b) => a.getTime() - b.getTime());
+        let set_time;
+        keys.forEach(key => {
+          if (key != '集合') {
+            switch (key) {
+              case '開始':
+                obj[dd][staff][keys_obj[key]] = valueDate(time[0], 'H:mm');
+                break;
+              case '終了':
+                obj[dd][staff][keys_obj[key]] = valueDate(time[time.length - 1], 'H:mm');
+                break;
+              case '解散':
+                obj[dd][staff][keys_obj[key]] = timeEnd(time[time.length - 1]);
+                break;
+              default:
+                obj[dd][staff][keys_obj[key]] = dd_map[0][as_label.indexOf(key)];
+            }
+          }
+          else if (set) {
+            obj[dd][staff][keys_obj[key]] = timeStartSup(time[0]);
+          } else {
+            obj[dd][staff][keys_obj[key]] = timeStartMain(time[0]);
+          };
+        });
+      } else { continue; };
+    };
+  });
+  shiftObjectUpdate(obj);
+};
 // 最新のシフトオブジェクトを返す。
 const shiftObjectCheck = (date = new Date()) => {
   const yyyy = date.getFullYear();
   const M = date.getMonth() + 1;
-  const label = ['LOCK', 'TimeStamp', 'yyyy', 'M', 'Object'];
   const database = mainData_('db').getSheetByName('シフト');
-  const data = database.getDataRange().getValues()
-    .filter(values => values[0] == true && values[2] == yyyy && values[3] == M)
-    .map(values => values.filter((value, index) => index >= label.indexOf('Object')));
-  const to_string = String(data);
+  const data = database.getDataRange().getValues();
+  const label = data.filter(values => values.includes('LOCK') && values.includes('Object')).flat();
+  const filter = data.filter(values => values[0] && values[2] == yyyy && values[3] == M)
+    .flatMap(values => values.filter((value, index) => index >= label.indexOf('Object') && value != ''));
+  const to_string = filter.join('');
   return JSON.parse(to_string);
 };
-// 最新のシフトオブジェクトに対して、['MTG','病欠','当欠','研修']の情報を追加。
+// シフトオブジェクトを保存する。
 const shiftObjectUpdate = (obj, date = new Date()) => {
   const yyyy = date.getFullYear();
   const M = date.getMonth() + 1;
@@ -221,3 +277,38 @@ const shiftObjectUpdate = (obj, date = new Date()) => {
   database.getRange(last_row, 1).insertCheckboxes().check();
   return;
 };
+const timeStartMain = (time) => {
+  time = new Date(time);
+  time.setMinutes(time.getMinutes() - 90);
+  return valueDate(time, 'H:mm');
+}
+const timeStartSup = (time) => {
+  time = new Date(time);
+  time.setMinutes(time.getMinutes() - 60);
+  return valueDate(time, 'H:mm');
+}
+const timeEnd = (time) => {
+  time = new Date(time);
+  time.setMinutes(time.getMinutes() + 60);
+  return valueDate(time, 'H:mm');
+}
+const timesousa = (time, minutes) => {
+  const type = Object.prototype.toString.call(time) == '[object Date]';
+  if (type) {
+    time = new Date(time);
+    return time.setMinutes(time.getMinutes() + minutes);
+  } else {
+    try { new Date(time) }
+    catch {
+      if (String(time).match(/^[\d].:[\d].$/)) {
+        const now = new Date();
+        now.setHours(time.match(/^[\d]./), time.match(/[\d].$/));
+        now.setMinutes(now.getMinutes() + minutes);
+        return now;
+      }
+    }
+    const now = new Date(time);
+    now.setMinutes(now.getMinutes() + minutes);
+    return now;
+  }
+}
