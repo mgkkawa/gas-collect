@@ -6,6 +6,6 @@
   },
   "include": [
     "src/**/*",
-    "test/**/*"
-, "index.d.ts", "json_test.ts"  ]
+    "test/**/*",
+    "index.d.ts", "json_test.ts"  ]
 }

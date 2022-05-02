@@ -2,71 +2,71 @@
 
 const zeroOclock = () => {
   try {
-    toDay_();
-    writeForm_();
-    diffCheck_();
-    folderCreate_();
-  } finally { };
+    toDay_()
+    writeForm_()
+    diffCheck_()
+    folderCreate_()
+  } finally { }
 
-  start_time = new Date();
-  start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(0, 0, 0, 0);
+  start_time = new Date()
+  start_time.setDate(start_time.getDate() + 1)
+  start_time.setHours(0, 0, 0, 0)
 
-  triggerset('zeroOclock', start_time);
+  triggerset('zeroOclock', start_time)
 }
 
 const nineOclock = () => {
   try {
-    workerTemp();
-    tatsuyacheck_();
-    diffCheck_();
+    workerTemp()
+    tatsuyacheck_()
+    diffCheck_()
   }
-  finally { };
+  finally { }
 
-  start_time = new Date();
-  start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(9, 0, 0, 0);
+  start_time = new Date()
+  start_time.setDate(start_time.getDate() + 1)
+  start_time.setHours(9, 0, 0, 0)
 
-  triggerset('nineOclock', start_time);
+  triggerset('nineOclock', start_time)
 }
 
 const nineHirfOclock = () => {
-  try { visitCheck_(); }
-  finally { };
+  try { visitCheck_() }
+  finally { }
 
-  start_time = new Date();
-  start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(9, 30, 0, 0);
+  start_time = new Date()
+  start_time.setDate(start_time.getDate() + 1)
+  start_time.setHours(9, 30, 0, 0)
 
-  triggerset('nineHirfOclock', start_time);
+  triggerset('nineHirfOclock', start_time)
 }
 
 const twelveOclock = () => {
   try {
-    holiDayTemp();
-    diffCheck_();
+    holiDayTemp()
+    diffCheck_()
   }
-  finally { };
+  finally { }
 
-  start_time = new Date();
-  start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(12, 0, 0, 0);
+  start_time = new Date()
+  start_time.setDate(start_time.getDate() + 1)
+  start_time.setHours(12, 0, 0, 0)
 
-  triggerset('twelveOclock', start_time);
+  triggerset('twelveOclock', start_time)
 }
 
 const fifteenOclock = () => {
   try {
-    holiDayTemp();
-    tatsuyacheck_();
-    diffCheck_();
+    holiDayTemp()
+    tatsuyacheck_()
+    diffCheck_()
   }
-  finally { };
+  finally { }
 
-  start_time = new Date();
-  start_time.setDate(start_time.getDate() + 1);
-  start_time.setHours(15, 0, 0, 0);
+  start_time = new Date()
+  start_time.setDate(start_time.getDate() + 1)
+  start_time.setHours(15, 0, 0, 0)
 
 
-  triggerset('fifteenOclock', start_time);
+  triggerset('fifteenOclock', start_time)
 }
