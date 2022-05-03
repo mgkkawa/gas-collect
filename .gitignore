@@ -1,7 +1,5 @@
 **/
 !src/
-.clasp.json
-.claspignore
 !appsscript.json
 !tsconfig.json
 **練習.ts
@@ -10,3 +8,6 @@ _main_test.ts
 jsontest.**
 memo.json
 Object.ts
+creds.**
+.clasp*.**
+.clasp*
