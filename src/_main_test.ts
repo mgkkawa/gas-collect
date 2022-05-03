@@ -1,9 +1,9 @@
-const classtest = () => {
+const classtest_ = () => {
   const date = new Date();
   const as = mainData_('as');
   const sheet = as.getSheetByName(dateString(date, 'yyyyMM'));
 };
-const shifTtest = () => {
+const shifTtest_ = () => {
   const nh = mainData_('nh');
   const sheet = nh.getSheetByName('2022.04');
   const data = sheet.getRange('AH2:AP51').getValues();
@@ -28,7 +28,7 @@ const shifTtest = () => {
     .map(values => values.map(value => value.replace(/日 |日,/g, ',').replace(/,$|日$/, '')));
   sheet2.getRange(row, label.indexOf('ANAMTG') + 1, set_data.length, set_data[0].length).setValues(set_data);
 };
-const logtest = (date = new Date()) => {
+const logtest_ = (date = new Date()) => {
   const yyyy = date.getFullYear();
   const M = date.getMonth();
   const check_month = String(date.getMonth() + 1) + '月';
@@ -69,7 +69,7 @@ const logtest = (date = new Date()) => {
   // const add_data = add_sheet.getRange('AH:AO').getValues()
   //   .filter((values, index) =>)
 };
-const shifttest = (date = new Date()) => {
+const shifttest_ = (date = new Date()) => {
   if (!date) {
     date = new Date();
   }
@@ -233,7 +233,7 @@ const shifttest2_ = (date = new Date(), shift = originCheck_(date)) => {
   });
   return shift;
 };
-function cas() {
+function cas_() {
   const venue_call = mainData_('vc');
   const vc_casting = venue_call.getSheetByName('キャスティング');
   const shift = infoCheck_();
@@ -296,7 +296,7 @@ const returnCastingObject_ = (array) => {
   return obj;
 };
 //アサインシートをオブジェクト化（途中）
-const assign_object = () => {
+const assign_object_ = () => {
   const yyyy = '2021';
   const MM = '12';
   const as = mainData_('as');
@@ -369,25 +369,19 @@ const assign_object = () => {
     }
   });
 };
-const shiftkakunin = () => {
-  const obj = infoCheck_();
-  const staff = '西村佳苗';
-  const dd = '11';
-  Logger.log(obj[dd][staff]);
-};
-const testEcho = () => {
+const testEcho_ = () => {
   console.log('consoleテスト成功!!');
   Logger.log('Loggerテスト成功!!');
   Browser.msgBox('Browser.msgBoxテスト成功!!');
 };
-const propertySet = () => {
+const propertySet_ = () => {
   const scripts = PropertiesService.getScriptProperties();
 };
-const propertieCheck = () => {
+const propertieCheck_ = () => {
   const prop = PropertiesService.getScriptProperties();
   const keys = prop.getKeys();
 };
-const propertieDeliete = () => {
+const propertieDeliete_ = () => {
   const prop = PropertiesService.getScriptProperties();
   const keys = prop.getKeys();
 };

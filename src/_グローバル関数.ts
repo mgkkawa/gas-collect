@@ -195,21 +195,7 @@ const staffData_ = (name, keys = ['スタッフ名', '銀行名', '支店名', '
   return array;
 };
 const staffObject_ = () => {
-  return JSON.parse(properties('STAFF_OBJ'));
-  // object処理の参考に残す。
-  // const database = mainData_('sh').getSheetByName('データベース').getDataRange().getDisplayValues()
-  //   .filter((values, index) => index <= 50)
-  // const keys = database.splice(0, 1).flat().filter((key, index) => index > 0)
-  // const names = database.flatMap(values => values.splice(0, 1))
-  // let obj = {}
-  // names.map((staff, row) => {
-  //   let obj2 = {}
-  //   database[row].map((value, index) => {
-  //     obj2[keys[index]] = value
-  //   })
-  //   obj[staff] = obj2
-  // })
-  // return obj
+  return JSON.parse(properties('STAFF_OBJ'))
 };
 const staffEmailAddress_ = (name) => {
   const staffs = staffData_(['name', 'e-mail']);

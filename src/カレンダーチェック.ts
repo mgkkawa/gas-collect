@@ -11,7 +11,7 @@ const visitCheck_ = () => {
     body += '万全の準備をしてお待ちしましょう。\n';
     today_event.forEach(event => {
       const title = event.getTitle();
-      const time = dateString(event.getStartTime());
+      const time = dateString(event.getStartTime(), 'H:mm');
       const description = event.getDescription().replace(/<br>/, '\n').replace(/<.*>/g, '');
       body += `\n${title}\n${time}\n${description}\n`;
     });

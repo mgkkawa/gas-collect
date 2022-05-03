@@ -1,47 +1,44 @@
-function workRecordCheck(e) {
-  if (!e) {
-    e = 'シート2';
-  }
-  const wr = mainData_('wr').getSheetByName(e);
-  const label = wr.getRange(1, 1, 1, wr.getLastColumn()).getValues().flat()
-    .filter((value, index, array) => index > 0 && array.indexOf(value) == index && value != '');
-  const keys = ['MEETING', 'LEAVE', 'SET'];
+function workRecordCheck() {
   const date = new Date();
-  const start = 1;
-  let end = 0;
-  switch (e) {
-    case '月前半用':
-      end = 15;
-      break;
-    case '月後半用':
-      date.setDate(0);
-      end = date.getDate();
+  let day = date.getDate()
+  let sheetname
+  if (day < 15) {
+    day = 0
+    sheetname = '月後半用'
+  } else {
+    day = 15
+    sheetname = '月前半用'
   }
-  const obj = infoCheck_(date);
-  const map = [];
-  for (let i = start; i <= end; i++) {
-    const dd = String(i).padStart(2, '0');
-    const array = label.flatMap(staff => {
-      const set = obj[dd][staff]['SET'];
-      switch (set) {
-        case '休':
-        case '希': return ['', '', '公休'];
-        case '有': return ['', '', '有休'];
-        case '当欠': return ['', '', set];
-        case '病欠': return ['', '', set];
-        case 'リ': return ['', '', 'リフレ'];
-        case '忌': return ['', '', '忌引'];
-        case 'M': return ['', '', 'ASB'];
-        case '備': return ['09:00', '18:00', '準備日'];
-        case '研': return ['10:00', '18:00', '研修'];
-        default: return [obj[dd][staff]['MEETING'], obj[dd][staff]['LEAVE'], '登壇'];
+  date.setDate(day)
+  const shift = new StaffWorkRecord(new AssignObject(date), date);
+  const wr = mainData_('wr')
+  const sheet = wr.getSheetByName(sheetname)
+  sheet.getRange(3, 2, sheet.getLastRow() - 2, sheet.getLastColumn() - 1).clearContent()
+  const staffs = sheet.getRange(1, 2, 1, sheet.getLastColumn() - 1).getValues().flat().filter(Boolean)
+  const days = Object.keys(shift[staffs[0]]);
+  days.splice(date.getDate())
+  const data = days.map(day => staffs.flatMap(staff => returnWorkRecord_(shift[staff][day])))
+  sheet.getRange(3, 2, data.length, data[0].length).setValues(data)
+};
+const returnWorkRecord_ = (obj) => {
+  switch (obj.set_num) {
+    case '希': return ['', '', '公休']
+    case '有': return ['', '', '有休']
+    case 'リ': return ['', '', 'リフレ']
+    case 'M': return ['', '', 'ASB']
+    case '当欠': return ['', '', '当欠']
+    case '病欠': return ['', '', '病欠']
+    case '忌引': return ['', '', '忌引']
+    case '備': return ['9:00', '18:00', '準備日']
+    case '研': return ['10:00', '18:00', '研修']
+    default:
+      if (obj.flag) {
+        return [obj.meeting, obj.leave, '登壇']
       }
-    });
-    map.push(array);
+      return ['error', 'error', 'error']
   }
-  wr.getRange(3, 2, map.length, map[0].length).setValues(map);
 }
-const addMenuWorkRecord = () => {
+const addMenuWorkRecord_ = () => {
   const ui = SpreadsheetApp.getUi();
   const menu = ui.createMenu('追加メニュー');
   menu.addSubMenu(ui.createMenu('月前半用')
@@ -51,7 +48,7 @@ const addMenuWorkRecord = () => {
     .addItem('勤務実績確認メール', 'eoMonthEmail'));
   menu.addToUi();
 };
-const eoMonthEmail = () => {
+const eoMonthEmail_ = () => {
   const now = new Date();
   const wr = mainData_('wr');
   const wrs = wr.getSheetByName('月後半用');
@@ -75,7 +72,7 @@ const eoMonthEmail = () => {
     var famName = origindata[names.indexOf(a)][1];
     var shift = wrd.map(b => b = b.filter((c, x) => x == label.indexOf(a) + 2 && c != '')).flat();
     var body = `${famName}さん\nお疲れ様です\n${month}月の勤務日数と休日の内訳をお送りします。\n\n`;
-    body += infoBody(shift);
+    body += infoBody_(shift);
     body += '\n\nご不明点等あれば、富樫・川手までご連絡ください。\n\n';
     body += '富樫:070-1486-2940\n川手:080-2553-7330';
     //GmailApp.sendEmail(origindata[names.indexOf(a)][2], sub, body)
@@ -83,12 +80,12 @@ const eoMonthEmail = () => {
     write.getRange(write.getLastRow() + 1, 1, 1, 3).setValues([[origindata[names.indexOf(a)][2], sub, body]]);
   });
 };
-const sheetClear = () => {
+const sheetClear_ = () => {
   var ss = mainData_('wr');
   var sh = ss.getSheetByName('月後半用');
   sh.clearFormats();
 };
-const infoBody = (values) => {
+const infoBody_ = (values) => {
   var holiDayCount = 0;
   for (var i = 0; i < values.length; i++) {
     if (values[i] == '公休') {

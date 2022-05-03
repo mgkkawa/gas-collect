@@ -1,22 +1,18 @@
 const workerTemp = () => { workercheck_('出勤'); };
 const holiDayTemp = () => { workercheck_(); };
-const sendCondition_ = (event) => {
-  // if (!event) {
-  //   const formResponses = FormApp.openById("1S8rMG-CuGyWV1-bnRtGz4EM-LTh7VJonObL_UvhBJtM").getResponses()
-  //   const lastResponses = formResponses.length - 1
-  //   var event = formResponses[lastResponses].getItemResponses()
-  // }
-  const name = event[0].getResponse();
-  const temp = event[1].getResponse();
-  const condition = event[2].getResponse();
+const sendCondition_ = (e) => {
+  const staffs = staffObject_()
+  const staff = e[0].getResponse();
+  const temp = e[1].getResponse();
+  const condition = e[2].getResponse();
   if (temp >= 37.5 || condition == '悪い' || condition == '非常に悪い') {
-    const symptom = event[3].getResponse();
+    const symptom = e[3].getResponse();
     let msg = '検温報告にて対象者の報告がありました。\nスケジュールを確認しましょう。\n';
-    msg += `\n${name}さん :${temp}℃\n体調:${condition}\n自覚症状:${symptom}`;
+    msg += `\n${staff}さん :${temp}℃\n体調:${condition}\n自覚症状:${symptom}`;
     LINEWORKS.sendMsgRoom(setOptions_(), accountId_('room'), msg);
-    const eMailAddress = slimstaffData_([name], ['e-mail']);
+    const eMailAddress = staffs[staff]['メールアドレス']
     const sub = '【重要】追加報告が必要です。';
-    let body = mailBody_(name);
+    let body = mailBody_(staff);
     GmailApp.sendEmail(eMailAddress, sub, body, { from: accountId_('option') });
   }
 };
@@ -41,7 +37,7 @@ const workercheck_ = (work = null) => {
   body += '検温結果報告フォーム\n';
   body += 'https://docs.google.com/forms/d/e/1FAIpQLScMWgzo6FBP0DOtW5i45CzZayUs1PUvRAq7PWsubD9z8w_lfA/viewform\n';
   const names = trim_tmsd.map(values => values = values[0]).flat();
-  names.map(key => staff_obj[key]['メールアドレス']).forEach(value => {
+  names.map(staff => staff_obj[staff]['メールアドレス']).forEach(value => {
     GmailApp.sendEmail(value, sub, body, { from: accountId_('options') });
   });
 };
