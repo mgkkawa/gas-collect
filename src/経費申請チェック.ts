@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 const calculationEoMonth = () => { return calculation('月末分'); };
 const calculationFirstHalf = () => { return calculation('15日〆分'); };
 const advanceBorrowing = () => { return calculation('前借分'); };

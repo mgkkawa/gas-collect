@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 const tatsuyacheck_ = () => {
   const mgshift = mainData_('mg').getSheetByName(Utilities.formatDate(start_time, 'JST', 'yyyy.M'));
   const shiftDat = mgshift.getDataRange().getValues().map(values => {

@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 // casting=
 // [キャスティング]タブからキャスティング情報を取得
 // 共有用アサインシートへメンバーの転記

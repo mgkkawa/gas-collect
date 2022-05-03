@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 class Staffshift {
   constructor(date = new Date()) {
     const spread = mainData_('sh');

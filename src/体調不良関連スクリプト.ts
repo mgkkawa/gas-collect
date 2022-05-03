@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 const workerTemp = () => { workercheck_('出勤'); };
 const holiDayTemp = () => { workercheck_(); };
 const sendCondition_ = (event) => {

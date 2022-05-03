@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 // 毎月の経費申請フォルダを自動作成。
 // 経費申請書も各スタッフ用にコピー
 const addMenuExFormFoldar = () => {

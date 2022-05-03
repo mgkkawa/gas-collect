@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 const visitCheck_ = () => {
   const calendar = CalendarApp.getCalendarById('mg-dsg@mg-k.co.jp');
   const today_event = calendar.getEventsForDay(start_time);

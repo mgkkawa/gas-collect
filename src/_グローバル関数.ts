@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 var start_time = new Date();
 function doGet() {
   const get_date = start_time.getDate();

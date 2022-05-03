@@ -1,4 +1,3 @@
-// Compiled using gas_collect 1.2.0 (TypeScript 4.6.4)
 const writeForm_ = () => {
   const start_time = new Date();
   start_time.setHours(0, 0, 0, 0);
