@@ -37,8 +37,6 @@ class Info {
       const corse = obj_.corse;
       const start_date = new Date(new Date().getFullYear(), Number(day.slice(0, 2)), Number(day.slice(3, 2)), Number(start.slice(0, 2)), Number(start.slice(3, 2)));
       const finish_date = new Date(new Date().getFullYear(), Number(day.slice(0, 2)), Number(day.slice(3, 2)), Number(finish.slice(0, 2)), Number(finish.slice(3, 2)));
-      console.log(start_date);
-      console.log(finish_date);
       this[obj_number].serial = serial;
       this[obj_number].start = start;
       this[obj_number].finish = finish;

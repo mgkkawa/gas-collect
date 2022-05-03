@@ -85,8 +85,6 @@ function writeLogClock() {
   const check1_col = `${NumToA1(clock_label.indexOf('Check1') + 1)}2:${NumToA1(clock_label.indexOf('Check2') + 1)}${lastRow}`;
   const check3_col = `${NumToA1(clock_label.indexOf('Check3') + 1)}2:${NumToA1(clock_label.indexOf('Check3') + 1)}${lastRow}`;
   vcc.getRangeList([check1_col, check3_col]).uncheck();
-  // console.log(check1_col)
-  // console.log(check3_col)}
 }
 function writeVenCall() {
   const vc = mainData_('vc');
@@ -104,7 +102,6 @@ function writeVenCall() {
       return dateString(values[key], 'H:mm');
     }
   })).filter(values => values[0] == true).map(values => values.filter((value, index) => index > 0));
-  console.log(vcsd);
   const vcpos = vc.getSheetByName('転記');
   const vcposd = vcpos.getDataRange().getValues();
   const vcposlabel = vcposd.filter(values => values.includes('日程')).flat();
@@ -120,8 +117,6 @@ function writeVenCall() {
   const assdays = assd.map(values => values.filter((value, index) => index == asslabel.indexOf('日程'))).flat().map(value => dateString(value));
   const ass_write_keys = ['参加予定人数', '確認日'].map(key => asslabel.indexOf(key) + 1);
   const trim_assd = assd.map(values => asskeys.map((key, index) => values[key]));
-  console.log(asslabel);
-  console.log(assdays);
   vcsd.forEach(values => {
     const day = values[0];
     const venue = values[1];
@@ -142,8 +137,6 @@ function writeVenCall() {
             return value;
           }
         });
-        // console.log(`${vcpos.getRange(row + 1, vcpos_write_keys[0]).getA1Notation()}:check`)
-        // console.log(`${vcpos.getRange(row + 1, vcpos_write_keys[1], 1, set_data.length).getA1Notation()}:${set_data}`)
         vcpos.getRange(row + 1, vcpos_write_keys[0]).insertCheckboxes().check();
         vcpos.getRange(row + 1, vcpos_write_keys[1], 1, set_data.length).setValues([set_data]);
       }
@@ -156,8 +149,6 @@ function writeVenCall() {
       const as_start_check = (dateString(trim_assd[row][1], 'H:mm') == start);
       if (as_venue_check && as_start_check) {
         const check_day = Utilities.formatDate(start_time, 'JST', 'M/d');
-        // console.log(`${ass.getRange(row + 1, ass_write_keys[0]).getA1Notation()}:${values[7]}`)
-        // console.log(`${ass.getRange(row + 1, ass_write_keys[1]).getA1Notation()}:${check_day}`)
         ass.getRange(row + 1, ass_write_keys[0]).setValue(values[7]);
         ass.getRange(row + 1, ass_write_keys[1]).setValue(check_day);
       }
@@ -174,7 +165,7 @@ function writeCasting() {
   const casting = vc.getSheetByName('キャスティング');
   const cas_data = casting.getDataRange().getValues();
   const cas_obj = new Venuecall(cas_data, ['会場\n名称'], ['メイン\n講師', 'サポート講師']);
-  if (!cas_obj) {
+  if (Object.keys(cas_obj).filter(key => key != 'label').length == 0) {
     try {
       Browser.msgBox('対象のキャスティング情報がありませんでした。');
     }
@@ -183,37 +174,25 @@ function writeCasting() {
       return;
     }
   }
-  const as = mainData_('as');
-  const to_assheet = as.getSheetByName(dateString(date, 'yyyyMM'));
-  const main_assign = new Assign(to_assheet);
-  const sh = mainData_('sh');
-  const to_shsheet = sh.getSheetByName(dateString(date, 'yyyy.MM'));
+  const main_assign = new AssignObject();
   const main_table = new ShiftTable();
   const to_ = dateString(date, 'MM/');
-  let sub_as;
   let sub_assign;
-  let sub_sh;
   let sub_table;
   if (cas_obj.check()) {
     date.setMonth(date.getMonth() + 1);
-    sub_as = as.getSheetByName(dateString(date, 'yyyyMM'));
-    sub_assign = new Assign(sub_as);
-    sub_sh = sh.getSheetByName(dateString(date, 'yyyy.MM'));
+    sub_assign = new Assign(date);
     sub_table = new ShiftTable(date);
   }
   for (let row in cas_obj) {
-    let as_sheet = to_assheet;
-    let sh_sheet = to_shsheet;
-    let assign = main_assign;
-    let table = main_table;
     if (row == 'label') {
       continue;
     }
+    let assign = main_assign;
+    let table = main_table;
     const obj = cas_obj[row];
     const day = obj.date;
     if (!day.includes(to_)) {
-      as_sheet = sub_as;
-      sh_sheet = sub_sh;
       assign = sub_assign;
       table = sub_table;
     }
@@ -222,28 +201,25 @@ function writeCasting() {
     const ascheck = assign.rowNum(day, venue, start);
     const main = `${NumToA1(assign.maincol + 1)}${ascheck[0]}`; //メイン講師の貼り付け範囲
     const supind = assign.supcol;
+    if (!obj.mg_flag) {
+      assign.setValue(main, obj.main)
+    }
     let support;
     if (obj.support.length > 1) {
       support = `${NumToA1(supind + 1)}${ascheck[0]}:${NumToA1(supind + obj.support.length)}${ascheck[0]}`;
-    }
-    else {
+    } else {
       support = `${NumToA1(supind + 1)}${ascheck[0]}`;
     }
-    as_sheet.getRange(main).setValue(obj.main);
-    as_sheet.getRange(support).setValues([obj.support]);
+    assign.setValues(support, [obj.support])
     obj.support.push(obj.main);
     const range = [];
     obj.support.filter(Boolean).forEach(staff => {
       range.push(table.getCell(day, staff));
     });
-    sh_sheet.getRangeList(range).setValue(ascheck[1]);
+    table.sheet.getRangeList(range).setValue(ascheck[1]);
     obj.support.filter(Boolean).forEach(staff => {
       Logger.log(`staff:${staff}\nset_num:${ascheck[1]}\nassign:${ascheck[0]}\ntable:${table.getCell(day, staff)}`);
     });
-  }
-  const deletecheck = Browser.msgBox('メンバーを消去します。よろしいですか？', Browser.Buttons.YES_NO);
-  if (deletecheck == 'yes') {
-    casting.getRange('U2:Z500').clearContent();
   }
 }
 function writeSupply() {
@@ -321,19 +297,15 @@ function writeSupply() {
             switch (index) {
               case 0:
                 vcpos.getRange(row, value).insertCheckboxes().check();
-                // console.log(vcpos.getRange(row, value).getA1Notation())
                 break;
               case 1:
                 vcpos.getRange(row, value, 1, members.length).setValues([members]);
-                // console.log(`${vcpos.getRange(row, value, 1, members.length).getA1Notation()}\n${members}`)
                 break;
               case 2:
                 vcpos.getRange(row, value, 1, staff.length).setValues([staff]);
-                // console.log(`${vcpos.getRange(row, value, 1, staff.length).getA1Notation()}\n${staff}`)
                 break;
               case 3:
                 vcpos.getRange(row, value, 1, vcsu_set[i].length).setValues([vcsu_set[i]]);
-                // console.log(`${vcpos.getRange(row, value, 1, vcsu_set[i].length).getA1Notation()}\n${vcsu_set[i]}`)
                 break;
             }
           });
@@ -433,11 +405,9 @@ const suiteCase_ = () => {
     });
   let date = start_time.getDate();
   if (date <= 10) {
-    console.log('dateを1にセット');
     date = 1;
   }
   else if (date <= 20) {
-    console.log('dateを5日前にセット');
     date -= 5;
   }
   start_time.setDate(date);
