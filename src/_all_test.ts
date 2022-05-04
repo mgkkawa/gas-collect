@@ -1,31 +1,5 @@
 const difftes = () => {
-  const date = new Date()
-  const sheetname = dateString(date, 'yyyyMM')
-  const vc = mainData_('vc')
-  const as = mainData_('as')
-  const put = new DiffSheet(vc.getSheetByName(sheetname))
-  const origin = new DiffSheet(as.getSheetByName(sheetname), put.label)
-  put.diffCheck(origin)
 
-  date.setMonth(date.getMonth() + 1)
-  const sheet = as.getSheetByName(dateString(date, 'yyyyMM'))
-  new Promise(() => {
-    return new DiffSheet(sheet, put.label)
-  }).then((obj) => {
-    const next_put = addMonthSheet_(vc, date)
-    next_put.diffCheck(obj)
-  }).catch(() => {
-    Logger.log('翌月分のアサインシートないよ')
-    return
-  })
-  // try {
-  //   next_origin = new DiffSheet(sheet, put.label)
-  // } catch {
-  //   Logger.log('翌月分のアサインシートないよ')
-  //   return
-  // }
-  // const next_put = addMonthSheet_(vc, date)
-  // next_put.diffCheck(next_origin)
 }
 const castes = () => {
   const date = new Date();
