@@ -80,5 +80,5 @@ const diffTrigger = () => {
     hour += 1
   }
   date.setHours(hour, 0, 0, 0)
-  triggerset('diffCheck_', date)
+  triggerset('diffTrigger', date)
 }
