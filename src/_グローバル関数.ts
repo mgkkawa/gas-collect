@@ -353,6 +353,8 @@ const addMonthSheet_ = (spread, date) => {
   const timerange = [
     `${NumToA1(label.indexOf('開始') + 1)}2:${NumToA1(label.indexOf('開始') + 1)}999`,
     `${NumToA1(label.indexOf('終了') + 1)}2:${NumToA1(label.indexOf('終了') + 1)}999`,
+    `${NumToA1(label.indexOf('集合') + 1)}2:${NumToA1(label.indexOf('集合') + 1)}999`,
+    `${NumToA1(label.indexOf('解散') + 1)}2:${NumToA1(label.indexOf('解散') + 1)}999`,
   ]
   const numrange = [
     `${NumToA1(label.indexOf('定員\n(半角)') + 1)}2:${NumToA1(label.indexOf('定員\n(半角)') + 1)}999`,
