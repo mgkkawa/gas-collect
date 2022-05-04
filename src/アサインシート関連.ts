@@ -206,7 +206,7 @@ const trimValues_ = (values, label) => {
       case label.indexOf('LOG会場TEL'): return trimTel_(values[label.indexOf('会場TEL')])
       case label.indexOf('集合'):
         date = new Date(values[label.indexOf('日程')])
-        hour = new Date(value)
+        hour = new Date(values[label.indexOf('開始')])
         date.setHours(hour.getHours(), hour.getMinutes())
         flag = values.indexOf('講師') == 'エムジー'
         if (flag) {
@@ -216,7 +216,7 @@ const trimValues_ = (values, label) => {
         }
       case label.indexOf('解散'):
         date = new Date(values[label.indexOf('日程')])
-        hour = new Date(value)
+        hour = new Date(values[label.indexOf('終了')])
         date.setHours(hour.getHours(), hour.getMinutes())
         return timeEnd_(date)
     }

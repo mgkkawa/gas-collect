@@ -1,5 +1,16 @@
 const difftes = () => {
-
+  const date = new Date()
+  const sheetname = dateString(date, 'yyyyMM')
+  const vc = mainData_('vc')
+  const as = mainData_('as')
+  const put = new DiffSheet(vc.getSheetByName(sheetname))
+  const origin = new DiffSheet(as.getSheetByName(sheetname), put.label)
+  console.log(origin)
+  // const vc = mainData_('vc')
+  // const sheet = vc.getSheetByName('LOGCLOCK')
+  // const data = sheet.getDataRange().getValues()
+  // const log = new Venuecall(data, undefined, ['Check1', 'Check2', 'Check3'])
+  // console.log(log)
 }
 const castes = () => {
   const date = new Date();

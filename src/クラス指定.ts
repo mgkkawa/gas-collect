@@ -168,6 +168,7 @@ class Venuecall {
           date: dateString(values[this.label.indexOf('日程')]),
           venue: values[this.label.indexOf('会場\n名称')],
           start: dateString(values[this.label.indexOf('開始')], 'H:mm'),
+          serial: String(values[this.label.indexOf('開催No.')]),
           main: values[this.label.indexOf('メイン\n講師')],
           support: values.filter((value, ind) => ind >= this.label.indexOf('サポート講師') && ind <= this.label.indexOf('サポート5') && value != ''),
         };
