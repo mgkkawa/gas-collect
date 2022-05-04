@@ -1,34 +1,4 @@
 var start_time = new Date();
-function doGet() {
-  const get_date = start_time.getDate();
-  const get_Hours = start_time.getHours();
-  const get_Minutes = start_time.getMinutes();
-  if (get_Hours >= 15) {
-    start_time.setDate(get_date + 1);
-  }
-  start_time.setHours(15, 0, 0, 0);
-  triggerset('fifteenOclock', start_time);
-  if (get_Hours >= 12 && get_Hours < 15) {
-    start_time.setDate(get_date + 1);
-  }
-  start_time.setHours(12);
-  triggerset('twelveOclock', start_time);
-  if (get_Hours >= 9 && get_Minutes >= 30 && get_Hours < 12) {
-    start_time.setDate(get_date + 1);
-  }
-  start_time.setHours(9, 30, 0, 0);
-  triggerset('nineHirfOclock', start_time);
-  if (get_Hours >= 9 && get_Hours < 12) {
-    start_time.setDate(get_date + 1);
-  }
-  start_time.setMinutes(0);
-  triggerset('nineOclock', start_time);
-  if (get_Hours < 9) {
-    start_time.setDate(get_date + 1);
-  }
-  start_time.setHours(0);
-  triggerset('zeroOclock', start_time);
-}
 const triggerset = (t, time) => {
   const triggers = ScriptApp.getProjectTriggers();
   triggers.forEach(trigger => {
@@ -299,10 +269,18 @@ const address_trim_ = (value) => {
     .replace(/!.*! |[\(\)（）]|[\s]{2,}|(?<!(\d|丁目))\s/g, '');
 };
 const split_a_ = (value) => {
-  return value.match(/^.*\d(丁目)?(?=(\s|$))/);
+  const address = address_trim_(value).match(/^.*\d(丁目)?(?=(\s|$))/)
+  if (Boolean(address)) {
+    return address[0]
+  }
+  return ''
 };
 const split_b_ = (value) => {
-  return value.match(/(?<=\s).*$/);
+  const address = address_trim_(value).match(/(?<=\s).*$/)
+  if (Boolean(address)) {
+    return address[0]
+  }
+  return ''
 };
 const addressUPDATE_ = (sheet) => {
   if (!sheet) {
@@ -355,3 +333,63 @@ const main_flag = (flag, str) => {
     default: return 'SB同行';
   }
 };
+const isNaN_ = (value) => {
+  return typeof value === 'number'
+};
+const addMonthSheet_ = (spread, date) => {
+  const set_date = new Date(date)
+  let sheet
+  try { sheet = spread.insertSheet(dateString(set_date, 'yyyyMM')) }
+  catch { sheet = spread.getSheetByName(dateString(set_date, 'yyyyMM')) }
+  set_date.setMonth(set_date.getMonth() - 1)
+  const origin = spread.getSheetByName(dateString(set_date, 'yyyyMM'))
+  const label = origin.getRange(1, 1, 1, origin.getLastColumn()).getValues().flat()
+  const dayrange = [
+    `${NumToA1(label.indexOf('日程') + 1)}2:${NumToA1(label.indexOf('日程') + 1)}999`,
+    `${NumToA1(label.indexOf('更新日') + 1)}2:${NumToA1(label.indexOf('更新日') + 1)}999`,
+    `${NumToA1(label.indexOf('確認日') + 1)}2:${NumToA1(label.indexOf('確認日') + 1)}999`,
+    `${NumToA1(label.indexOf('配備日') + 1)}2:${NumToA1(label.indexOf('配備日') + 1)}999`,
+  ]
+  const timerange = [
+    `${NumToA1(label.indexOf('開始') + 1)}2:${NumToA1(label.indexOf('開始') + 1)}999`,
+    `${NumToA1(label.indexOf('終了') + 1)}2:${NumToA1(label.indexOf('終了') + 1)}999`,
+  ]
+  const numrange = [
+    `${NumToA1(label.indexOf('定員\n(半角)') + 1)}2:${NumToA1(label.indexOf('定員\n(半角)') + 1)}999`,
+    `${NumToA1(label.indexOf('参加予定人数') + 1)}2:${NumToA1(label.indexOf('参加予定人数') + 1)}999`,
+    `${NumToA1(label.indexOf('必要キャリー数\n(半角)') + 1)}2:${NumToA1(label.indexOf('必要キャリー数\n(半角)') + 1)}999`,
+    `${NumToA1(label.indexOf('アサイン数\n(半角)') + 1)}2:${NumToA1(label.indexOf('アサイン数\n(半角)') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数1') + 1)}2:${NumToA1(label.indexOf('配備数1') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数2') + 1)}2:${NumToA1(label.indexOf('配備数2') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数3') + 1)}2:${NumToA1(label.indexOf('配備数3') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数4') + 1)}2:${NumToA1(label.indexOf('配備数4') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数5') + 1)}2:${NumToA1(label.indexOf('配備数5') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数6') + 1)}2:${NumToA1(label.indexOf('配備数6') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数7') + 1)}2:${NumToA1(label.indexOf('配備数7') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数8') + 1)}2:${NumToA1(label.indexOf('配備数8') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数9') + 1)}2:${NumToA1(label.indexOf('配備数1') + 1)}999`,
+    `${NumToA1(label.indexOf('配備数10') + 1)}2:${NumToA1(label.indexOf('配備数1') + 1)}999`,
+  ]
+  const textrange = [
+    `${NumToA1(label.indexOf('開催No.') + 1)}2:${NumToA1(label.indexOf('開催No.') + 1)}999`,
+    `${NumToA1(label.indexOf('会場\n番号') + 1)}2:${NumToA1(label.indexOf('会場\n番号') + 1)}999`,
+    `${NumToA1(label.indexOf('LOG主催者TEL') + 1)}2:${NumToA1(label.indexOf('LOG主催者TEL') + 1)}999`,
+    `${NumToA1(label.indexOf('LOG会場TEL') + 1)}2:${NumToA1(label.indexOf('LOG会場TEL') + 1)}999`,
+    `${NumToA1(label.indexOf('通し番号') + 1)}2:${NumToA1(label.indexOf('通し番号') + 1)}999`,
+  ]
+  sheet.setFrozenRows(1)
+  sheet.getRange(1, 1, 1, label.length).setValues([label])
+  sheet.getRangeList(dayrange).setNumberFormat('MM/dd')
+  sheet.getRangeList(timerange).setNumberFormat('H:mm')
+  sheet.getRangeList(numrange).setNumberFormat('0')
+  sheet.getRangeList(textrange).setNumberFormat('@')
+  return sheet
+}
+const diffMap = (a, b) => {
+  return a.map((value, index) => {
+    if (value != b[index]) {
+      return b[index]
+    }
+    return value
+  })
+}

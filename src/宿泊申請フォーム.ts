@@ -91,4 +91,5 @@ const stayCheck_ = () => {
       body += `【出発】 ${arrival_time}\n【到着】 ${departure_time}\n【移動時間】 ${duration_time}\n`;
     }
   });
+  console.log(body)
 };

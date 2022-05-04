@@ -181,7 +181,7 @@ function writeCasting() {
   let sub_table;
   if (cas_obj.check()) {
     date.setMonth(date.getMonth() + 1);
-    sub_assign = new Assign(date);
+    sub_assign = new AssignObject(date);
     sub_table = new ShiftTable(date);
   }
   for (let row in cas_obj) {
@@ -543,63 +543,6 @@ const shiftSet_ = (date = null) => {
       }
     }
   });
-};
-const diffCheck_ = () => {
-  const copy_array = (array) => {
-    return copy_label.map((key, index) => {
-      switch (index) {
-        case indexs[5]: split_a_(address_trim_(array[qindexs[4]]));
-        case indexs[6]: split_b_(address_trim_(array[qindexs[4]]));
-        default: return array[query_label.indexOf(key)];
-      }
-    });
-  };
-  const vc = mainData_('vc');
-  const copy_origin = vc.getSheetByName('転記');
-  const copy_row = copy_origin.getRange(1, 2).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow() - 2;
-  const copy_col = copy_origin.getRange('H1').getValue();
-  const copy_label = copy_origin.getRange(2, 1, 1, copy_col).getValues().flat();
-  const indexs = ['日程', '開始', '終了', '会場\n名称', '通し番号', '住所', '建物'].map(key => copy_label.indexOf(key));
-  const copy_data = copy_origin.getRange(3, 1, copy_row, copy_col).getValues()
-    .map(values => values.map((value, index) => {
-      switch (index) {
-        case indexs[0]: return dateString(value, 'yyyy/MM/dd');
-        case indexs[1]: return dateString(value, 'H:mm');
-        case indexs[2]: return dateString(value, 'H:mm');
-        case indexs[4]: return String(value);
-        default: return value;
-      }
-    }));
-  const query = vc.getSheetByName('集約');
-  const query_row = query.getRange(1, 2).getNextDataCell(SpreadsheetApp.Direction.DOWN).getRow() - 2;
-  const query_label = query.getRange(2, 1, query_row, query.getLastColumn()).getValues().flat();
-  const qindexs = ['日程', '開始', '終了', '会場\n名称', '会場\n住所']
-    .map(key => query_label.indexOf(key));
-  const query_data = query.getRange(3, 1, query_row, query.getLastColumn()).getValues()
-    .map(values => values.map((value, index) => {
-      switch (index) {
-        case qindexs[0]: return dateString(value, 'yyyy/MM/dd');
-        case qindexs[1]: return dateString(value, 'H:mm');
-        case qindexs[2]: return dateString(value, 'H:mm');
-        default: return value;
-      }
-    }));
-  const write_data = query_data.map(values => copy_array(values));
-  write_data.forEach((values, index) => {
-    const day = values[indexs[0]];
-    const ven = values[indexs[3]];
-    const time = values[indexs[1]];
-    for (let i = 0; i < copy_data.length; i++) {
-      const dcheck = (day == copy_data[i][indexs[0]]);
-      const vcheck = (ven == copy_data[i][indexs[3]]);
-      const tcheck = (time == copy_data[i][indexs[1]]);
-      if (dcheck && vcheck && tcheck) {
-        write_data.splice(index, 1, copy_data[i]);
-        break;
-      }
-    }
-  });
-  copy_origin.getRange(3, 1, write_data.length, write_data[0].length).setValues(write_data);
 };
 const addUi = () => {
   SpreadsheetApp.getUi()

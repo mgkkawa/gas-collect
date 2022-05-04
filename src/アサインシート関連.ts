@@ -1,3 +1,21 @@
+const diffCheck_ = () => {
+  const date = new Date()
+  const sheetname = dateString(date, 'yyyyMM')
+  const vc = mainData_('vc')
+  const as = mainData_('as')
+  const put = new DiffSheet(vc.getSheetByName(sheetname))
+  const origin = new DiffSheet(as.getSheetByName(sheetname), put.label)
+  put.diffCheck(origin)
+
+  date.setMonth(date.getMonth() + 1)
+  const sheet = as.getSheetByName(dateString(date, 'yyyyMM'))
+  new Promise(() => {
+    return new DiffSheet(sheet, put.label)
+  }).then((obj) => {
+    const next_put = addMonthSheet_(vc, date)
+    next_put.diffCheck(obj)
+  }).catch(() => Logger.log('翌月分のアサインシートないよ'))
+}
 const assignObject = () => {
   const date = new Date();
   const as = mainData_('as');
@@ -85,3 +103,105 @@ const fill = (ary) => {
   });
   return ary;
 };
+
+class DiffSheet {
+  label: any[];
+  sheet: GoogleAppsScript.Spreadsheet.Sheet
+  constructor(sheet, keys = undefined) {
+    let data = sheet.getDataRange().getValues()
+    let ind
+    let label = data.filter((values, index) => {
+      if (ind) { return false }
+      if (values.includes('日程')) {
+        ind = index
+        return true
+      }
+    }).flat()
+    if (Boolean(keys)) {
+      data = data.map(values => keys.map((key, index) => {
+        if (label.indexOf(key) == -1) {
+          return ''
+        }
+        return values[label.indexOf(key)]
+      }))
+      label = keys
+    }
+    data.forEach((values, index) => {
+      if (index > ind && (values[label.indexOf('日程')] != '' || values[label.indexOf('会場\n名称')] != '')) {
+        this[index + 1] = trimValues_(values, label)
+      }
+    })
+    this.label = label
+    this.sheet = sheet
+  }
+  labelCreate() {
+    return Object.keys(this).filter(key => key != 'label' && key != 'sheet')
+  }
+  reMap() {
+    return this.labelCreate().map(key => this[key])
+  }
+  assignToPut(obj) {
+    const sheet = obj.sheet
+    let last_row = sheet.getLastRow() - 1
+    if (last_row == 0) { last_row = 1 }
+    const arr = []
+    for (let key in this) {
+      if (key == 'label' || key == 'sheet') { continue }
+      arr.push(this[key])
+    }
+    sheet.getRange(2, 1, last_row, sheet.getLastColumn()).clearContent()
+    sheet.getRange(2, 1, arr.length, arr[0].length).setValues(arr)
+  }
+  diffCheck(obj) {
+    const put = this.reMap()
+    const out = obj.reMap()
+    const serials_put = put.map(values => values[0])
+    const serials_obj = out.map(values => values[0])
+    if (JSON.stringify(put) == JSON.stringify(out)) {
+      Logger.log('差分なし！')
+      return
+    }
+    const map = serials_obj.map((serial, index) => {
+      if (serial == serials_put[index]) {
+        return diffMap(put[index], out[index])
+      } else if (serials_put.includes(serial)) {
+        return diffMap(put[serials_put.indexOf(serial)], out[index])
+      } else {
+        return out[index]//.concat(array)
+      }
+    })
+    let last_row = this.sheet.getLastRow() - 1
+    if (last_row == 0) { last_row = 1 }
+    this.sheet.getRange(2, 1, last_row, this.sheet.getLastColumn()).clearContent()
+    this.sheet.getRange(2, 1, map.length, map[0].length).setValues(map)
+  }
+}
+const trimTel_ = (str) => {
+  if (!Boolean(str)) { return str }
+  const tel = str.replace(/[^\d]/g, '').match(/0[5789]0[\d]{8}|0[\d]{9}/)
+  return String(tel)
+}
+const trimValues_ = (values, label) => {
+  return values.map((value, index) => {
+    switch (index) {
+      case label.indexOf('参加予定人数'):
+        if (!isNaN_(value) && value != '') {
+          return Number(value.match(/[1-9]?[\d]/))
+        }
+        return value
+      case label.indexOf('開始'):
+      case label.indexOf('終了'):
+        const date = new Date(values[label.indexOf('日程')])
+        const hour = new Date(value)
+        date.setHours(hour.getHours(), hour.getMinutes())
+        return dateString(date, 'H:mm')
+      case label.indexOf('開催No.'):
+      case label.indexOf('通し番号'): return String(value)
+      case label.indexOf('LOG住所'): return split_a_(values[label.indexOf('会場\n住所')])
+      case label.indexOf('LOG建物'): return split_b_(values[label.indexOf('会場\n住所')])
+      case label.indexOf('LOG主催者TEL'): return trimTel_(values[label.indexOf('主催者TEL')])
+      case label.indexOf('LOG会場TEL'): return trimTel_(values[label.indexOf('会場TEL')])
+    }
+    return dateString(value)
+  })
+}

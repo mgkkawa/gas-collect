@@ -161,6 +161,3 @@ const infoBody_ = (values) => {
   }
   return body;
 };
-const isNaN_ = (value) => {
-  return typeof value === 'number' && value !== value;
-};
