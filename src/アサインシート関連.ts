@@ -183,9 +183,6 @@ const trimTel_ = (str) => {
 }
 const trimValues_ = (values, label) => {
   return values.map((value, index) => {
-    let date
-    let hour
-    let flag
     switch (index) {
       case label.indexOf('参加予定人数'):
         if (!isNaN_(value) && value != '') {
@@ -194,10 +191,7 @@ const trimValues_ = (values, label) => {
         return value
       case label.indexOf('開始'):
       case label.indexOf('終了'):
-        date = new Date(values[label.indexOf('日程')])
-        hour = new Date(value)
-        date.setHours(hour.getHours(), hour.getMinutes())
-        return dateString(date, 'H:mm')
+        return dateString(new Date(value), 'H:mm')
       case label.indexOf('開催No.'):
       case label.indexOf('通し番号'): return String(value)
       case label.indexOf('LOG住所'): return split_a_(values[label.indexOf('会場\n住所')])
@@ -205,20 +199,13 @@ const trimValues_ = (values, label) => {
       case label.indexOf('LOG主催者TEL'): return trimTel_(values[label.indexOf('主催者TEL')])
       case label.indexOf('LOG会場TEL'): return trimTel_(values[label.indexOf('会場TEL')])
       case label.indexOf('集合'):
-        date = new Date(values[label.indexOf('日程')])
-        hour = new Date(values[label.indexOf('開始')])
-        date.setHours(hour.getHours(), hour.getMinutes())
-        flag = values.indexOf('講師') == 'エムジー'
-        if (flag) {
-          return timeStartMain_(date)
+        if (values[label.indexOf('講師')] == 'エムジー') {
+          return timeStartMain_(new Date(values[label.indexOf('開始')]))
         } else {
-          return timeStartSup_(date)
+          return timeStartSup_(new Date(values[label.indexOf('開始')]))
         }
       case label.indexOf('解散'):
-        date = new Date(values[label.indexOf('日程')])
-        hour = new Date(values[label.indexOf('終了')])
-        date.setHours(hour.getHours(), hour.getMinutes())
-        return timeEnd_(date)
+        return timeEnd_(new Date(values[label.indexOf('終了')]))
     }
     return dateString(value)
   })

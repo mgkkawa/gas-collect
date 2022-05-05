@@ -180,6 +180,11 @@ class Venuecall {
           this[index].inside = values[this.label.indexOf('入館')];
           this[index].over = values[this.label.indexOf('次回引継ぎ')];
         }
+        if (this.label.includes('Check1')) {
+          this[index].field = values[this.label.indexOf('Check1')]
+          this[index].work = values[this.label.indexOf('Check2')]
+          this[index].casting = values[this.label.indexOf('Check3')]
+        }
       }
       ;
     });
@@ -301,5 +306,127 @@ class Assign {
   }
   getValues(staff) {
     // const keys = 
+  }
+}
+
+class Venue {
+  serial: string;
+  date: any;
+  vennum: string;
+  venue: any;
+  area: any;
+  hold: any;
+  address: any;
+  main_tel: string;
+  sub_tel: string;
+  corse: any;
+  start: Date;
+  finish: Date;
+  limit: number;
+  carry: number;
+  assign: number;
+  caution: any[];
+  store: any;
+  sad: any;
+  update: any;
+  maneger: any;
+  nop: any;
+  checkday: any;
+  mg_flag: boolean;
+  member: {};
+  set: any;
+  constructor(arg, label) {
+    this.serial = String(arg[label.indexOf('開催No.')]);
+    this.date = dateString(arg[label.indexOf('日程')]);
+    this.vennum = String(arg[label.indexOf('会場\n番号')]);
+    this.venue = arg[label.indexOf('会場\n名称')];
+    this.area = arg[label.indexOf('地域')];
+    this.hold = arg[label.indexOf('開催\n可否')];
+    this.address = arg[label.indexOf('会場\n住所')];
+    this.main_tel = String(arg[label.indexOf('主催者TEL')]);
+    if (arg[label.indexOf('会場TEL')] != '') {
+      this.sub_tel = String(arg[label.indexOf('会場TEL')]);
+    }
+    ;
+    this.corse = arg[label.indexOf('コース')];
+    this.start = new Date(arg[label.indexOf('開始')]);
+    this.finish = new Date(arg[label.indexOf('終了')]);
+    this.limit = Number(arg[label.indexOf('定員\n(半角)')]);
+    this.carry = Number(arg[label.indexOf('必要キャリー数\n(半角)')]);
+    this.assign = Number(arg[label.indexOf('アサイン数\n(半角)')]);
+    this.caution = [arg[label.indexOf('会場運用上\n注意点')], arg[label.indexOf('カリキュラム\n補足')], arg[label.indexOf('連絡事項')]].filter(Boolean);
+    this.store = arg[label.indexOf('誘導先店舗')];
+    if (arg[label.indexOf('SAD在籍状況')] == '在籍') {
+      this.sad = { flag: true };
+    }
+    else {
+      this.sad = { flag: false };
+    }
+    ;
+    this.sad.support = arg[label.indexOf('SADサポート有の場合\n(名前+店舗名)')];
+    this.update = arg[label.indexOf('更新日')];
+    this.maneger = arg[label.indexOf('会場\n担当者名')];
+    this.nop = arg[label.indexOf('参加予定人数')];
+    this.checkday = arg[label.indexOf('確認日')];
+    if (arg[label.indexOf('講師')] == 'エムジー') {
+      this.mg_flag = true;
+    }
+    else {
+      this.mg_flag = false;
+    }
+    ;
+    this.member = {};
+    if (this.mg_flag == true) {
+      this.member = { main: arg[label.indexOf('メイン\n講師')] };
+    }
+    else {
+      this.member = {};
+    }
+    ;
+    this.member['support'] = arg.filter((value, index) => index >= label.indexOf('サポート講師') && index < label.indexOf('通し番号') && value != '');
+    this.set = arg[label.indexOf('通し番号')];
+  }
+}
+
+class AddressWork {
+  value: any;
+  constructor(str) {
+    this.value = str.replace(/[^\x01-\x7E\xA1-\xDF]/g, str => zen2han_(str)).replace(/[\n\r]/g, '')
+      .replace(/(?<=\d)[ーｰ－−-]|(丁目(?=\d)|番地の?(?=\d)|(?<=\d)番(?!([地 　]|$)))/g, '-')
+      .replace(/[一二三四五六七八九十〇](?=-)|(?<=-)[一二三四五六七八九十〇]/g, str => kanji2num_(str))
+      .replace(/[　]|(?<=\d)[\(（]|(番地|号|番(?!地))(?=[\(（])|(番地|番|号)([ 　]|$)/g, ' ')
+      .replace(/!.*! |[\(\)（）]|[\s]{2,}|(?<!(\d|丁目))\s/g, '')
+    const zen2han_ = (str) => {
+      return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => {
+        return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+      });
+    };
+  }
+  onlyAddress() {
+    const address = this.value.trim().match(/^.*\d(丁目)?(?=(\s|$))/)
+    if (Boolean(address)) {
+      return address[0]
+    }
+    return ''
+  }
+  building() {
+    const address = this.value.match(/(?<=\s).*$/)
+    if (Boolean(address)) {
+      return address[0]
+    }
+    return ''
+  }
+}
+class TextNumbers {
+  value: any;
+  constructor(value) {
+    value = String(value)
+    this.value = value
+  }
+  onlyPhoneNumber() {
+    if (!Boolean(this.value)) { return this.value }
+    const tel = this.value.replace(/[^\d]/g, '').match(/0[5789]0[\d]{8}|0[\d]{9}/)
+    if (!Boolean(tel)) { return '' }
+    return String(tel)
   }
 }

@@ -35,6 +35,7 @@ const zeroOclock = () => {
   try { toDay_() } catch (e) { console.log(`toDay_()は失敗しました。\n${e}`) }
   try { writeForm_() } catch (e) { console.log(`writeForm_()は失敗しました。\n${e}`) }
   try { folderCreate_() } catch (e) { console.log(`folderCreate_()は失敗しました。\n${e}`) }
+  try { labelCheck_() } catch (e) { console.log(`labelCheck_()は失敗しました。\n${e}`) }
   start_time = new Date();
   start_time.setDate(start_time.getDate() + 1);
   start_time.setHours(0, 0, 0, 0);
@@ -74,11 +75,27 @@ const diffTrigger = () => {
   try { diffCheck_() } catch (e) { console.log(`diffCheck_()は失敗しました。\n${e}`) }
   const date = new Date()
   let hour = date.getHours()
-  if (hour % 2 == 0) {
+  if (hour >= 20) {
+    hour = 8
+    date.setDate(date.getDate() + 1)
+  } else if (hour % 2 == 0) {
     hour += 2
   } else {
     hour += 1
   }
   date.setHours(hour, 0, 0, 0)
   triggerset('diffTrigger', date)
+}
+const labelCheck_ = () => {
+  const vc = mainData_('vc')
+  const sheet = vc.getSheetByName('転記')
+  let label = sheet.getRange(2, 1, 1, sheet.getLastColumn()).getValues().flat()
+  label = label.filter((key, index) => index <= label.indexOf('通し番号'))
+  const stringify = JSON.stringify(label)
+  const prop = properties('sheet_label')
+  if (stringify != prop) {
+    PropertiesService.getScriptProperties().setProperty('sheet_label', stringify)
+    return console.log('sheet_labelを上書きしました。')
+  }
+  return
 }
