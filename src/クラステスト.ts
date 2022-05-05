@@ -1,7 +1,7 @@
 class WritingSheets {
   vencallspread: GoogleAppsScript.Spreadsheet.Spreadsheet
   assign: GoogleAppsScript.Spreadsheet.Sheet
-  vencall: any
+  vencall: GoogleAppsScript.Spreadsheet.Sheet
   shift: GoogleAppsScript.Spreadsheet.Sheet
   constructor(times = new Times()) {
     this.vencallspread = mainData_('vc')
@@ -9,69 +9,106 @@ class WritingSheets {
     this.vencall = this.vencallspread.getSheetByName(times.yyyyMM())
     this.shift = mainData_('sh').getSheetByName(times.yyyy_MM())
   }
+  returnObj() {
+    const obj = {}
+    for (let row in this) {
+      if (String(row).match(/^\d*$/) != null) {
+        obj[String(row)] = this[row]
+      }
+    }
+    return obj
+  }
+  keys() {
+    return Object.keys(this).filter(key => String(key).match(/^\d*$/) != null)
+  }
+}
+class MonthSheet extends WritingSheets {
+  constructor() {
+    super()
+    const possheet = this.vencallspread.getSheetByName('転記')
+    const data = possheet.getDataRange().getValues()
+    let start
+    const label = data.filter((values, index) => {
+      if (values.includes('日程')) {
+        start = index
+        return true
+      }
+    }).flat()
+
+  }
 }
 class Logclock extends WritingSheets {
-  sheet: any
-  label: any
+  sheet: GoogleAppsScript.Spreadsheet.Sheet
+  label: string[]
   constructor(times = new Times()) {
     super(times)
     const sheet = this.vencallspread.getSheetByName('LOGCLOCK')
-
     this.sheet = sheet
   }
   fieldCheck(row) {
     new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('Check1') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckBoxes().check()
+      row = row.map(value => `${NumToA1(this.label.indexOf('現場チェック') + 1)}${value}`)
+      this.sheet.getRangeList(row).insertCheckboxes().check()
     }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('Check1') + 1)}${row}`).insertCheckBoxes().check()
+      this.sheet.getRange(`${NumToA1(this.label.indexOf('現場チェック') + 1)}${row}`).insertCheckboxes().check()
+    })
+    return this
+  }
+  shiftCheck(row) {
+    new Promise(() => {
+      row = row.map(value => `${NumToA1(this.label.indexOf('シフトチェック') + 1)}${value}`)
+      this.sheet.getRangeList(row).insertCheckboxes().check()
+    }).catch(() => {
+      this.sheet.getRange(`${NumToA1(this.label.indexOf('シフトチェック') + 1)}${row}`).insertCheckboxes().check()
     })
     return this
   }
   workCheck(row) {
     new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('Check1') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckBoxes().check()
+      row = row.map(value => `${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${value}`)
+      this.sheet.getRangeList(row).insertCheckboxes().check()
     }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('Check1') + 1)}${row}`).insertCheckBoxes().check()
+      this.sheet.getRange(`${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${row}`).insertCheckboxes().check()
     })
     return this
   }
   castingCheck(row) {
     new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('Check1') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckBoxes().check()
+      row = row.map(value => `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`)
+      this.sheet.getRangeList(row).insertCheckboxes().check()
     }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('Check1') + 1)}${row}`).insertCheckBoxes().check()
+      this.sheet.getRange(`${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`).insertCheckboxes().check()
     })
     return this
   }
   castingUncheck(row) {
     new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('Check1') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckBoxes().uncheck()
+      row = row.map(value => `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`)
+      this.sheet.getRangeList(row).insertCheckboxes().uncheck()
     }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('Check1') + 1)}${row}`).insertCheckBoxes().uncheck()
+      this.sheet.getRange(`${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`).insertCheckboxes().uncheck()
     })
     return this
   }
   allCheck(row) {
     new Promise(() => {
-      row = row.flatMap(value => [`${NumToA1(this.label.indexOf('Check1') + 1)}${value}:${NumToA1(this.label.indexOf('Check2') + 1)}${value}`,
-      `${NumToA1(this.label.indexOf('Check3') + 1)}${value}`])
-      this.sheet.getRangeList(row).insertCheckBoxes().check()
+      row = row.flatMap(value => [`${NumToA1(this.label.indexOf('現場チェック') + 1)}${value}:${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${value}`,
+      `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`])
+      this.sheet.getRangeList(row).insertCheckboxes().check()
     }).catch(() => {
-      this.sheet.getRangeList([`${NumToA1(this.label.indexOf('Check1') + 1)}${row}:${NumToA1(this.label.indexOf('Check2') + 1)}${row}`,
-      `${NumToA1(this.label.indexOf('Check3') + 1)}${row}`]).insertCheckBoxes().check()
+      this.sheet.getRangeList([`${NumToA1(this.label.indexOf('現場チェック') + 1)}${row}:${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${row}`,
+      `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`]).insertCheckboxes().check()
     })
     return this
   }
+
 }
 class LogclockCheck extends Logclock {
   constructor(times = new Times()) {
     super(times)
     let data = this.sheet.getDataRange().getValues()
     const label = labelCreate(data)
+    this.label = label
     const checks = ['現場チェック', 'シフトチェック', 'お仕事チェック', 'キャスティングチェック'].map(key => label.indexOf(key))
     data.forEach((values, index) => {
       if (index < 1) { return }
@@ -83,10 +120,22 @@ class LogclockCheck extends Logclock {
       }
     })
   }
+  dataCheck() {
+    const keys = this.keys()
+    const field = []
+    const shift = []
+    const work = []
+    const unwork = []
+    const all = []
+    keys.forEach(row => {
+      const obj = this[row]
+
+    })
+  }
 }
 class LogChecks {
   day: string
-  venue: any
+  venue: string
   serial: string
   constructor(values, label) {
     this.day = new Times(values[label.indexOf('日程')]).MMdd()
@@ -95,16 +144,17 @@ class LogChecks {
   }
 }
 class LogData {
-  spot: any
-  shift: any
-  schedule: any
-  casting: any
+  spot: boolean
+  shift: boolean
+  schedule: boolean
+  casting: boolean
+  member: string[]
   constructor(values, label) {
     const flagCheck = (a, b) => {
-      if (a) {
-        return a
+      if (Boolean(a)) {
+        return Boolean(a)
       } else {
-        return b
+        return Boolean(b)
       }
     }
     const start = label.indexOf('メイン\n講師')
@@ -114,7 +164,7 @@ class LogData {
     this.shift = flagCheck(values[label.indexOf('シフトチェック')], values[label.indexOf('シフト登録')])
     this.schedule = flagCheck(values[label.indexOf('お仕事チェック')], values[label.indexOf('お仕事スケジュール')])
     this.casting = flagCheck(values[label.indexOf('キャスティングチェック')], values[label.indexOf('キャスティング')])
-
+    this.member = member
   }
 }
 class Times {
@@ -156,5 +206,8 @@ class Times {
     this.value.setMinutes(this.minutes + 60)
     return Utilities.formatDate(this.value, 'JST', 'H:mm')
   }
-
+  nextDay() {
+    this.value.setDate(this.value.getDate() + 1)
+    return this.value
+  }
 }

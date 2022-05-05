@@ -8,6 +8,6 @@ _main_test.ts
 jsontest.**
 memo.json
 Object.ts
-creds.**
+.creds.**
 .clasp*.**
 .clasp*
