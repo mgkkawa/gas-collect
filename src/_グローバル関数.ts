@@ -305,20 +305,19 @@ const addressUPDATE_ = (sheet) => {
 function display_() {
   return Object.keys(this).filter(value => value != 'display');
 }
-const labelCreate = (arg) => {
+const labelCreate_ = (arg: string[]) => {
   //新会場連絡シートのラベルを設定。
   //アサインシート側のラベルに名称を変更。
-  const label = arg[0];
-  return label.map(value => value
-    .replace(/(^会場$|^会場名$)/, '会場\n名称')
-    .replace(/^可否$/, '開催\n可否')
-    .replace(/^日付$/, '日程')
-    .replace(/(^メイン$|^変更後メンバー$)/, 'メイン\n講師')
-    .replace(/(^サポート1$|^メンバー1$)/, 'サポート講師')
-    .replace(/^メンバー/, 'サポート')
-    .replace(/^会場特性$/, '会場運用上\n注意点')
-    .replace(/^備考$/, 'カリキュラム\n補足')
-    .replace(/^予定$/, '参加予定人数'));
+  return arg.map(value =>
+    value.replace(/(^会場$|^会場名$)/, '会場\n名称')
+      .replace(/^可否$/, '開催\n可否')
+      .replace(/^日付$/, '日程')
+      .replace(/(^メイン$|^変更後メンバー$)/, 'メイン\n講師')
+      .replace(/(^サポート1$|^メンバー1$)/, 'サポート講師')
+      .replace(/^メンバー/, 'サポート')
+      .replace(/^会場特性$/, '会場運用上\n注意点')
+      .replace(/^備考$/, 'カリキュラム\n補足')
+      .replace(/^予定$/, '参加予定人数'));
 };
 const datereplace = (value, index) => {
   if (index == 0) {

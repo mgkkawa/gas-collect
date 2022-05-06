@@ -146,13 +146,13 @@ class Worktime {
   }
 }
 class Venuecall {
-  label: any;
+  label: string[];
   constructor(arg, everys = undefined, somes = undefined) {
     //argにはシート全体の二次元配列。
     //特定indexのデータが空白なら取得しない。
     // everysは[ラベル名,...]内、全てが空白でない事をチェック。
     // somesは[ラベル名,...]内、空白が含まれていても何かデータが入っているかをチェック。
-    this.label = labelCreate(arg);
+    this.label = labelCreate_(arg[0]);
     let echeck = true;
     let scheck = true;
     arg.forEach((values, index) => {
@@ -391,16 +391,16 @@ class Venue {
 class AddressWork {
   value: any;
   constructor(str) {
-    this.value = str.replace(/[^\x01-\x7E\xA1-\xDF]/g, str => zen2han_(str)).replace(/[\n\r]/g, '')
-      .replace(/(?<=\d)[ーｰ－−-]|(丁目(?=\d)|番地の?(?=\d)|(?<=\d)番(?!([地 　]|$)))/g, '-')
-      .replace(/[一二三四五六七八九十〇](?=-)|(?<=-)[一二三四五六七八九十〇]/g, str => kanji2num_(str))
-      .replace(/[　]|(?<=\d)[\(（]|(番地|号|番(?!地))(?=[\(（])|(番地|番|号)([ 　]|$)/g, ' ')
-      .replace(/!.*! |[\(\)（）]|[\s]{2,}|(?<!(\d|丁目))\s/g, '')
-    const zen2han_ = (str) => {
+    const zenkaku2hankaku = (str) => {
       return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => {
         return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
       });
     };
+    this.value = str.replace(/[^\x01-\x7E\xA1-\xDF]/g, str => zenkaku2hankaku(str)).replace(/[\n\r]/g, '')
+      .replace(/(?<=\d)[ーｰ－−-]|(丁目(?=\d)|番地の?(?=\d)|(?<=\d)番(?!([地 　]|$)))/g, '-')
+      .replace(/[一二三四五六七八九十〇](?=-)|(?<=-)[一二三四五六七八九十〇]/g, str => kanji2num_(str))
+      .replace(/[　]|(?<=\d)[\(（]|(番地|号|番(?!地))(?=[\(（])|(番地|番|号)([ 　]|$)/g, ' ')
+      .replace(/!.*! |[\(\)（）]|[\s]{2,}|(?<!(\d|丁目))\s/g, '')
   }
   onlyAddress() {
     const address = this.value.trim().match(/^.*\d(丁目)?(?=(\s|$))/)

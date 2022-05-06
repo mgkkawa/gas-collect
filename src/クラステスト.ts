@@ -2,39 +2,118 @@ class WritingSheets {
   vencallspread: GoogleAppsScript.Spreadsheet.Spreadsheet
   assign: GoogleAppsScript.Spreadsheet.Sheet
   vencall: GoogleAppsScript.Spreadsheet.Sheet
-  shift: GoogleAppsScript.Spreadsheet.Sheet
+  staffshift: GoogleAppsScript.Spreadsheet.Sheet
+  returnObj: () => {}
+  keys: () => string[]
+  getMap: () => any[][]
   constructor(times = new Times()) {
     this.vencallspread = mainData_('vc')
     this.assign = mainData_('as').getSheetByName(times.yyyyMM())
     this.vencall = this.vencallspread.getSheetByName(times.yyyyMM())
-    this.shift = mainData_('sh').getSheetByName(times.yyyy_MM())
-  }
-  returnObj() {
-    const obj = {}
-    for (let row in this) {
-      if (String(row).match(/^\d*$/) != null) {
-        obj[String(row)] = this[row]
+    this.staffshift = mainData_('sh').getSheetByName(times.yyyy_MM())
+    this.returnObj = () => {
+      const obj = {}
+      for (let row in this) {
+        if (String(row).match(/^\d*$/) != null) {
+          obj[String(row)] = this[row]
+        }
       }
+      return obj
     }
-    return obj
-  }
-  keys() {
-    return Object.keys(this).filter(key => String(key).match(/^\d*$/) != null)
+    this.keys = () => {
+      return Object.keys(this).filter(key => String(key).match(/^\d*$/) != null)
+    }
+    this.getMap = () => {
+      return this.keys().map(key => this[key])
+    }
   }
 }
 class MonthSheet extends WritingSheets {
-  constructor() {
+  label: string[]
+  sheet: GoogleAppsScript.Spreadsheet.Sheet
+  serials: () => any[]
+  fieldCheck: (row: any) => this
+  shiftCheck: (row: any) => this
+  workCheck: (row: any) => this
+  castingCheck: (row: any) => this
+  castingUncheck: (row: any) => this
+  allCheck: (row: any) => this
+
+  constructor(date = undefined) {
     super()
     const possheet = this.vencallspread.getSheetByName('転記')
     const data = possheet.getDataRange().getValues()
     let start
-    const label = data.filter((values, index) => {
+    data.forEach((values, index) => {
       if (values.includes('日程')) {
-        start = index
-        return true
+        start ??= index
+        this.label ??= values
       }
-    }).flat()
+      if (index > start && (values[this.label.indexOf('日程')] != '' || values[this.label.indexOf('会場\n名称')])) {
+        this[index + 1] = trimValues_(values, this.label)
+      }
+    })
+    this.serials = () => {
+      return this.keys().map(key => this[key][this.label.indexOf('開催No.')])
+    }
+    this.fieldCheck = (row) => {
+      new Promise(() => {
+        const range = row.map(value => `${NumToA1(this.label.indexOf('現場チェック') + 1)}${value}`)
+        this.sheet.getRangeList(range).insertCheckboxes().check()
+      }).catch(() => {
+        this.sheet.getRange(`${NumToA1(this.label.indexOf('現場チェック') + 1)}${row}`).insertCheckboxes().check()
+      })
+      return this
+    }
+    this.shiftCheck = (row) => {
+      new Promise(() => {
+        const range = row.map(value => `${NumToA1(this.label.indexOf('シフトチェック') + 1)}${value}`)
+        this.sheet.getRangeList(range).insertCheckboxes().check()
+      }).catch(() => {
+        this.sheet.getRange(`${NumToA1(this.label.indexOf('シフトチェック') + 1)}${row}`).insertCheckboxes().check()
+      })
+      return this
+    }
+    this.workCheck = (row) => {
+      new Promise(() => {
+        const range = row.map(value => `${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${value}`)
+        this.sheet.getRangeList(range).insertCheckboxes().check()
+      }).catch(() => {
+        this.sheet.getRange(`${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${row}`).insertCheckboxes().check()
+      })
+      return this
+    }
+    this.castingCheck = (row) => {
+      new Promise(() => {
+        const range = row.map(value => `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`)
+        this.sheet.getRangeList(range).insertCheckboxes().check()
+      }).catch(() => {
+        this.sheet.getRange(`${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`).insertCheckboxes().check()
+      })
+      return this
+    }
+    this.castingUncheck = (row) => {
+      new Promise(() => {
+        const range = row.map(value => `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`)
+        this.sheet.getRangeList(range).insertCheckboxes().uncheck()
+        this.sheet.getRangeList(row).clearContent()
+      }).catch(() => {
+        this.sheet.getRange(`${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`).insertCheckboxes().uncheck()
 
+      })
+      return this
+    }
+    this.allCheck = (row) => {
+      new Promise(() => {
+        const range = row.flatMap(value => [`${NumToA1(this.label.indexOf('現場チェック') + 1)}${value}:${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${value}`,
+        `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`])
+        this.sheet.getRangeList(range).insertCheckboxes().check()
+      }).catch(() => {
+        this.sheet.getRangeList([`${NumToA1(this.label.indexOf('現場チェック') + 1)}${row}:${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${row}`,
+        `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`]).insertCheckboxes().check()
+      })
+      return this
+    }
   }
 }
 class Logclock extends WritingSheets {
@@ -45,92 +124,35 @@ class Logclock extends WritingSheets {
     const sheet = this.vencallspread.getSheetByName('LOGCLOCK')
     this.sheet = sheet
   }
-  fieldCheck(row) {
-    new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('現場チェック') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckboxes().check()
-    }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('現場チェック') + 1)}${row}`).insertCheckboxes().check()
-    })
-    return this
-  }
-  shiftCheck(row) {
-    new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('シフトチェック') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckboxes().check()
-    }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('シフトチェック') + 1)}${row}`).insertCheckboxes().check()
-    })
-    return this
-  }
-  workCheck(row) {
-    new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckboxes().check()
-    }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${row}`).insertCheckboxes().check()
-    })
-    return this
-  }
-  castingCheck(row) {
-    new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckboxes().check()
-    }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`).insertCheckboxes().check()
-    })
-    return this
-  }
-  castingUncheck(row) {
-    new Promise(() => {
-      row = row.map(value => `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`)
-      this.sheet.getRangeList(row).insertCheckboxes().uncheck()
-    }).catch(() => {
-      this.sheet.getRange(`${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`).insertCheckboxes().uncheck()
-    })
-    return this
-  }
-  allCheck(row) {
-    new Promise(() => {
-      row = row.flatMap(value => [`${NumToA1(this.label.indexOf('現場チェック') + 1)}${value}:${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${value}`,
-      `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${value}`])
-      this.sheet.getRangeList(row).insertCheckboxes().check()
-    }).catch(() => {
-      this.sheet.getRangeList([`${NumToA1(this.label.indexOf('現場チェック') + 1)}${row}:${NumToA1(this.label.indexOf('お仕事チェック') + 1)}${row}`,
-      `${NumToA1(this.label.indexOf('キャスティングチェック') + 1)}${row}`]).insertCheckboxes().check()
-    })
-    return this
-  }
 
 }
 class LogclockCheck extends Logclock {
   constructor(times = new Times()) {
     super(times)
     let data = this.sheet.getDataRange().getValues()
-    const label = labelCreate(data)
-    this.label = label
-    const checks = ['現場チェック', 'シフトチェック', 'お仕事チェック', 'キャスティングチェック'].map(key => label.indexOf(key))
+    this.label = JSON.parse(properties('LOG_label'))
+    const checks = ['現場チェック', 'シフトチェック', 'お仕事チェック', 'キャスティングチェック'].map(key => this.label.indexOf(key))
     data.forEach((values, index) => {
       if (index < 1) { return }
       if (checks.some(key => values[key])) {
-        const obj = {}
-        obj['checks'] = new LogChecks(values, label)
-        obj['log'] = new LogData(values, label)
+        const obj =
+        {
+          checks: {},
+          logs: {}
+        }
+        obj.checks = new LogChecks(values, this.label)
+        obj.logs = new LogData(values, this.label)
         this[index + 1] = obj
+        console.log(this[index + 1])
       }
     })
   }
-  dataCheck() {
-    const keys = this.keys()
-    const field = []
-    const shift = []
-    const work = []
-    const unwork = []
-    const all = []
-    keys.forEach(row => {
-      const obj = this[row]
-
-    })
+  data() {
+    const obj = {}
+    for (let key of this.keys()) {
+      obj[key] = this[key]
+    }
+    return obj
   }
 }
 class LogChecks {
@@ -143,13 +165,15 @@ class LogChecks {
     this.serial = String(values[label.indexOf('開催No.')])
   }
 }
-class LogData {
+class LogData extends LogclockCheck {
   spot: boolean
   shift: boolean
   schedule: boolean
   casting: boolean
   member: string[]
+  check: () => boolean[]
   constructor(values, label) {
+    super()
     const flagCheck = (a, b) => {
       if (Boolean(a)) {
         return Boolean(a)
@@ -165,6 +189,9 @@ class LogData {
     this.schedule = flagCheck(values[label.indexOf('お仕事チェック')], values[label.indexOf('お仕事スケジュール')])
     this.casting = flagCheck(values[label.indexOf('キャスティングチェック')], values[label.indexOf('キャスティング')])
     this.member = member
+    this.check = () => {
+      return [this.spot, this.shift, this.schedule, this.casting]
+    }
   }
 }
 class Times {
@@ -192,7 +219,7 @@ class Times {
   /**@return MM/dd形式の文字列 */
   MMdd() { return `${String(this.month + 1).padStart(2, '0')}/${String(this.date).padStart(2, '0')}` }
   /**@returns H:mm形式の文字列 */
-  Hmm() { return this.hours + String(this.minutes).padStart(2, '0') }
+  Hmm() { return `${this.hours}:${String(this.minutes).padStart(2, '0')}` }
   /** @returns 引数に与えたbool値に応じて集合時間を返す。true:(-90) false:(-60)*/
   meetingTime(bool) {
     if (bool) {

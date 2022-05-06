@@ -182,6 +182,10 @@ const trimTel_ = (str) => {
   return String(tel)
 }
 const trimValues_ = (values, label) => {
+  const start = values[label.indexOf('開始')]
+  const finish = values[label.indexOf('終了')]
+  const address = values[label.indexOf('会場\n住所')]
+  const flag = values[label.indexOf('講師')] == 'エムジー'
   return values.map((value, index) => {
     switch (index) {
       case label.indexOf('参加予定人数'):
@@ -190,22 +194,15 @@ const trimValues_ = (values, label) => {
         }
         return value
       case label.indexOf('開始'):
-      case label.indexOf('終了'):
-        return dateString(new Date(value), 'H:mm')
+      case label.indexOf('終了'): return new Times(value).Hmm()
       case label.indexOf('開催No.'):
       case label.indexOf('通し番号'): return String(value)
-      case label.indexOf('LOG住所'): return split_a_(values[label.indexOf('会場\n住所')])
-      case label.indexOf('LOG建物'): return split_b_(values[label.indexOf('会場\n住所')])
+      case label.indexOf('LOG住所'): return new AddressWork(address).onlyAddress()
+      case label.indexOf('LOG建物'): return new AddressWork(address).building()
       case label.indexOf('LOG主催者TEL'): return trimTel_(values[label.indexOf('主催者TEL')])
       case label.indexOf('LOG会場TEL'): return trimTel_(values[label.indexOf('会場TEL')])
-      case label.indexOf('集合'):
-        if (values[label.indexOf('講師')] == 'エムジー') {
-          return timeStartMain_(new Date(values[label.indexOf('開始')]))
-        } else {
-          return timeStartSup_(new Date(values[label.indexOf('開始')]))
-        }
-      case label.indexOf('解散'):
-        return timeEnd_(new Date(values[label.indexOf('終了')]))
+      case label.indexOf('集合'): return new Times(start).meetingTime(flag)
+      case label.indexOf('解散'): return new Times(finish).endTime()
     }
     return dateString(value)
   })
